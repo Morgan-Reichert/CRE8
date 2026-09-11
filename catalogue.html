@@ -64,6 +64,21 @@ img{ display:block; max-width:100%; height:auto; }
 .bouton--bleu{ background:var(--bleu); border-color:var(--bleu); box-shadow:0 12px 28px -12px rgba(49,62,255,.6); }
 .bouton--bleu:hover{ background:var(--noir); border-color:var(--noir); }
 .bouton--sobre{ background:#fff; color:var(--noir); box-shadow:none; }
+
+/* Finitions, alignées sur l'accueil */
+.jauge{
+  position:fixed; top:0; left:0; height:3px; width:100%;
+  transform:scaleX(0); transform-origin:0 50%;
+  background:var(--degrade); z-index:200; pointer-events:none;
+}
+@media print{ .surgit{ opacity:1 !important; transform:none !important; } .jauge{ display:none; } }
+@media (prefers-reduced-motion:no-preference){
+  .surgit{ opacity:0; transform:translateY(20px); }
+  .surgit--on{
+    opacity:1; transform:none;
+    transition:opacity .65s ease, transform .65s cubic-bezier(.2,.8,.3,1);
+  }
+}
 .bouton--sobre:hover{ background:var(--noir); color:#fff; }
 .bouton--plein{ width:100%; }
 .bouton--petit{ min-height:44px; padding:0 1.5rem; font-size:.88rem; }
@@ -136,7 +151,40 @@ img{ display:block; max-width:100%; height:auto; }
 .style:hover{ border-color:var(--noir); transform:translateY(-3px); box-shadow:0 18px 40px -24px rgba(20,22,60,.4); }
 .style--choisi{ border-color:var(--bleu); box-shadow:0 0 0 3px rgba(49,62,255,.16); }
 .style__vue{ aspect-ratio:4/3; padding:14px; position:relative; }
-.style__ecran{ height:100%; border-radius:12px; overflow:hidden; padding:11px; font-family:var(--titre); display:flex; flex-direction:column; }
+/* L'aperçu est présenté comme une fenêtre de navigateur : trois pastilles et
+   une barre d'adresse suffisent à le faire lire comme un site, là où un
+   rectangle de couleur se lisait comme un bloc de remplissage. */
+.style__fenetre{
+  height:100%; border-radius:11px; overflow:hidden;
+  display:flex; flex-direction:column;
+  box-shadow:0 16px 34px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.09);
+  transition:transform .4s cubic-bezier(.2,.8,.3,1), box-shadow .4s ease;
+}
+.style__chrome{
+  flex:0 0 auto; display:flex; align-items:center; gap:3.5px;
+  padding:5px 8px; color:#fff;
+  background:rgba(255,255,255,.09);
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+.style__chrome i{ width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.42; }
+.style__chrome b{ flex:1; height:6px; margin-left:6px; border-radius:99px; background:currentColor; opacity:.15; }
+.style__ecran{ flex:1; border-radius:0; }
+.style__lienVue{ display:block; text-decoration:none; }
+.style:hover .style__fenetre{
+  transform:translateY(-5px) scale(1.018);
+  box-shadow:0 26px 50px -22px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.14);
+}
+@media (prefers-reduced-motion:reduce){ .style__fenetre{ transition:none; } .style:hover .style__fenetre{ transform:none; } }
+
+/* Troisième action : un lien, pas un troisième bouton. */
+.style__lien{
+  appearance:none; background:none; border:0; padding:.3rem 0; cursor:pointer;
+  font-family:var(--titre); font-weight:700; font-size:.84rem; color:var(--gris-txt);
+  text-decoration:underline; text-underline-offset:3px; text-decoration-thickness:1.5px;
+  text-decoration-color:var(--trait); transition:color .16s, text-decoration-color .16s;
+}
+.style__lien:hover{ color:var(--noir); text-decoration-color:currentColor; }
+.style__ecran{ overflow:hidden; padding:11px; font-family:var(--titre); display:flex; flex-direction:column; }
 .style__corps{ padding:1.25rem 1.35rem 1.4rem; display:flex; flex-direction:column; flex:1; }
 .style__nom{ display:flex; align-items:baseline; justify-content:space-between; gap:.75rem; margin-bottom:.35rem; }
 .style__nom h3{ font-size:1.2rem; font-weight:800; letter-spacing:-.04em; }
@@ -234,6 +282,7 @@ img{ display:block; max-width:100%; height:auto; }
 </style>
 </head>
 <body>
+<div class="jauge" id="jauge" aria-hidden="true"></div>
 <a class="saut" href="#styles">Aller au catalogue</a>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -500,12 +549,14 @@ window.Panier = (function () {
         '<span class="ap__pill" style="background:'+a+';color:'+p+';margin-top:6px">Prendre rendez-vous</span>',
       grille:
         '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>DEVANTURE</span><i><span>Boutique</span><span>Plan</span></i></div>'+
-        '<div class="ap__row ap__row--2"><div class="ap__case" style="background:'+a+';min-height:30px"></div><div class="ap__case" style="background:'+f+'1a;min-height:30px"></div></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:10px">Ouvert<br>du mardi au samedi</div>'+
+        '<div class="ap__row ap__row--2"><div class="ap__case" style="background:'+a+';min-height:26px"></div><div class="ap__case" style="background:'+f+'1a;min-height:26px"></div></div>'+
         '<div class="ap__row ap__row--3" style="margin-top:4px"><div class="ap__case" style="background:'+f+'1a"></div><div class="ap__case" style="background:'+f+'1a"></div><div class="ap__case" style="background:'+f+'1a"></div></div>'+
         '<div class="ap__l" style="background:'+f+';margin-top:7px"></div><div class="ap__l" style="background:'+f+';width:55%"></div>',
       photo:
         '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>STUDIO</span><i><span>Travaux</span><span>Contact</span></i></div>'+
-        '<div class="ap__bloc" style="background:'+f+';min-height:38px"></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:10px">Ce qu\'on a<br>photographié</div>'+
+        '<div class="ap__bloc" style="background:'+f+';min-height:32px"></div>'+
         '<div class="ap__row ap__row--3" style="margin-top:5px"><div class="ap__case" style="background:'+a+'"></div><div class="ap__case" style="background:'+f+'22"></div><div class="ap__case" style="background:'+f+'22"></div></div>'+
         '<div class="ap__h1" style="color:'+f+';font-size:9px;margin-top:7px">Portfolio 2026</div>',
       colonnes:
@@ -525,23 +576,29 @@ window.Panier = (function () {
         '<div class="ap__bloc" style="background:'+a+';min-height:22px;margin-top:5px"></div>'+
         '<span class="ap__pill" style="background:'+f+';color:'+p+';margin-top:6px">Nous appeler</span>'
     };
-    return '<div class="style__vue" style="background:'+f+'"><div class="style__ecran" style="background:'+p+'">'+t[s.vue]+'</div></div>';
+    return '<div class="style__vue" style="background:'+f+'">' +
+      '<div class="style__fenetre">' +
+        '<div class="style__chrome" aria-hidden="true"><i></i><i></i><i></i><b></b></div>' +
+        '<div class="style__ecran" style="background:'+p+'">'+t[s.vue]+'</div>' +
+      '</div></div>';
   }
 
   var grille = $('#grille');
   grille.innerHTML = STYLES.map(function (s) {
     return '<article class="style" data-id="' + s.id + '" data-cat="' + s.cat.join(' ') + '">' +
-      apercu(s) +
+      (s.apercu
+        ? '<a class="style__lienVue" href="' + s.apercu + '" tabindex="-1" aria-hidden="true">' + apercu(s) + '</a>'
+        : apercu(s)) +
       '<div class="style__corps">' +
         '<div class="style__nom"><h3>' + s.nom + '</h3><span class="style__prix">' + euro(s.prix) + '</span></div>' +
         '<p class="style__pour">' + s.pour + '</p>' +
         '<p class="style__meta">' + s.meta.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</p>' +
         '<div class="style__actions">' +
-          (s.apercu
-            ? '<a class="bouton bouton--sobre bouton--petit" href="' + s.apercu + '">Voir l\'aperçu</a>'
-            : '<span class="style__bientot">Aperçu bientôt</span>') +
           '<button type="button" class="bouton bouton--plein" data-panier="' + s.id + '">Ajouter au panier — ' + euro(s.prix) + '</button>' +
-          '<button type="button" class="bouton bouton--sobre bouton--plein bouton--petit" data-choisir="' + s.id + '">Commander sans compte</button>' +
+          (s.apercu
+            ? '<a class="bouton bouton--sobre bouton--plein bouton--petit" href="' + s.apercu + '">Voir l\'aperçu</a>'
+            : '<span class="style__bientot">Aperçu bientôt</span>') +
+          '<button type="button" class="style__lien" data-choisir="' + s.id + '">Commander sans compte</button>' +
         '</div>' +
       '</div></article>';
   }).join('');
@@ -677,6 +734,36 @@ window.Panier = (function () {
 
   $('#annee').textContent = new Date().getFullYear();
 })();
+
+  /* jauge de lecture et apparition des cartes — additif : sans ce bloc la
+     page reste complète, simplement sans les animations. */
+  (function () {
+    var jauge = document.getElementById('jauge'), tic = false;
+    if (jauge) {
+      function maj() {
+        var d = document.documentElement, max = d.scrollHeight - d.clientHeight;
+        jauge.style.transform = 'scaleX(' + (max > 0 ? d.scrollTop / max : 0) + ')';
+        tic = false;
+      }
+      addEventListener('scroll', function () {
+        if (!tic) { tic = true; requestAnimationFrame(maj); }
+      }, { passive: true });
+      maj();
+    }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!('IntersectionObserver' in window)) return;
+    var vu = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('surgit--on'); vu.unobserve(e.target);
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.style').forEach(function (el, i) {
+      el.classList.add('surgit');
+      el.style.transitionDelay = (Math.min(i % 3, 2) * 80) + 'ms';
+      vu.observe(el);
+    });
+  })();
 </script>
 </body>
 </html>

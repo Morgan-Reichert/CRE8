@@ -109,6 +109,51 @@ img{ display:block; max-width:100%; height:auto; }
   border-color:transparent;
 }
 .bouton--bleu{ background:var(--bleu); border-color:var(--bleu); box-shadow:0 12px 28px -12px rgba(49,62,255,.6); }
+
+/* ============================================================
+   Finitions visuelles
+   ============================================================ */
+
+/* Le bouton principal portait un aplat : un dégradé court et une lueur
+   qui s'intensifie au survol le détachent des boutons secondaires. */
+.bouton--bleu{
+  background-image:linear-gradient(135deg,#3D49FF 0%,var(--bleu) 55%,#2731E8 100%);
+  transition:box-shadow .22s ease, transform .22s ease;
+}
+.bouton--bleu:hover{
+  box-shadow:0 16px 34px -10px rgba(49,62,255,.72);
+  transform:translateY(-1px);
+}
+.bouton--bleu:active{ transform:translateY(0); }
+
+/* Les cartes étaient posées à plat. Une élévation au survol donne la
+   matière qui manquait, sans rien changer à la mise en page. */
+.serv,.brique,.avis__carte,.etape{
+  transition:transform .26s cubic-bezier(.2,.8,.3,1), box-shadow .26s ease;
+}
+.serv:hover,.brique:hover,.etape:hover{
+  transform:translateY(-4px);
+  box-shadow:0 24px 48px -30px rgba(20,22,60,.5);
+}
+.avis__carte:hover{ transform:translateY(-4px); }
+
+/* Barre de lecture : sur une page aussi longue, elle dit où l'on en est. */
+.jauge{
+  position:fixed; top:0; left:0; height:3px; width:100%;
+  transform:scaleX(0); transform-origin:0 50%;
+  background:var(--degrade); z-index:200; pointer-events:none;
+}
+
+/* Apparition au défilement. La classe est posée par le script : sans
+   JavaScript, rien n'est masqué. */
+@media print{ .surgit{ opacity:1 !important; transform:none !important; } .jauge{ display:none; } }
+@media (prefers-reduced-motion:no-preference){
+  .surgit{ opacity:0; transform:translateY(20px); }
+  .surgit--on{
+    opacity:1; transform:none;
+    transition:opacity .65s ease, transform .65s cubic-bezier(.2,.8,.3,1);
+  }
+}
 .bouton--bleu:hover{
   /* même fond que l'onglet actif du héro : image + voile pour la lisibilité */
   background-color:var(--noir);
@@ -298,7 +343,7 @@ img{ display:block; max-width:100%; height:auto; }
 /* ---------------- héro ---------------- */
 .hero{
   position:relative; overflow-x:clip;
-  padding:clamp(2.5rem,6vw,4.5rem) 0 clamp(4rem,8vw,6.5rem);
+  padding:clamp(2.5rem,6vw,4.5rem) 0 clamp(3rem,5.5vw,4.5rem);
   /* photo de fond au format du héro, plus un voile teinté pour la couleur de marque */
   background:var(--fond-hero) center 42%/cover no-repeat, var(--papier);
 }
@@ -1177,6 +1222,7 @@ img{ display:block; max-width:100%; height:auto; }
 </script>
 </head>
 <body>
+<div class="jauge" id="jauge" aria-hidden="true"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
 <symbol id="i-etoile" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.58 1.11 6.47L12 17.44 6.19 20.5 7.3 14.03 2.6 9.45l6.5-.95L12 2.6z"/></symbol>
@@ -2603,6 +2649,69 @@ window.Panier = (function () {
 
   document.getElementById('annee').textContent = new Date().getFullYear();
 })();
+
+  /* ==========================================================
+     11. FINITIONS : jauge de lecture, apparitions, compteurs
+     Tout est additif : si ce bloc ne s'exécute pas, la page reste
+     complète et lisible, simplement sans les animations.
+     ========================================================== */
+  (function () {
+    var doux = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* --- jauge de lecture --- */
+    var jauge = document.getElementById('jauge');
+    if (jauge) {
+      var tic = false;
+      function majJauge() {
+        var h = document.documentElement;
+        var max = h.scrollHeight - h.clientHeight;
+        jauge.style.transform = 'scaleX(' + (max > 0 ? h.scrollTop / max : 0) + ')';
+        tic = false;
+      }
+      addEventListener('scroll', function () {
+        if (!tic) { tic = true; requestAnimationFrame(majJauge); }
+      }, { passive: true });
+      majJauge();
+    }
+
+    if (doux || !('IntersectionObserver' in window)) return;
+
+    /* --- apparition au défilement --- */
+    var cibles = document.querySelectorAll(
+      '.section .tete, .serv, .methode article, .brique, .avis__carte,' +
+      '.etape, .conf__liste li, .partenaires__grille > *, .ticket, .encart'
+    );
+    var vu = new IntersectionObserver(function (entrees) {
+      entrees.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('surgit--on');
+        vu.unobserve(e.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    cibles.forEach(function (el, i) {
+      el.classList.add('surgit');
+      el.style.transitionDelay = (Math.min(i % 4, 3) * 70) + 'ms';
+      vu.observe(el);
+    });
+
+    /* --- compteurs : les chiffres de la section « pourquoi » --- */
+    var chiffres = document.querySelectorAll('.methode__chiffre');
+    var compte = new IntersectionObserver(function (entrees) {
+      entrees.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target, fin = parseInt(el.textContent, 10);
+        compte.unobserve(el);
+        if (isNaN(fin)) return;
+        var debut = performance.now(), duree = 900;
+        (function pas(t) {
+          var p = Math.min((t - debut) / duree, 1);
+          el.textContent = Math.round(fin * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(pas);
+        })(debut);
+      });
+    }, { threshold: 0.6 });
+    chiffres.forEach(function (el) { compte.observe(el); });
+  })();
 </script>
 </body>
 </html>
