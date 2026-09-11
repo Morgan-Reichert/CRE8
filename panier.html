@@ -211,8 +211,9 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   <div class="env">
     <ol class="fil" id="fil">
       <li data-e="1" aria-current="true"><b>1</b>Panier</li>
-      <li data-e="2"><b>2</b>Coordonnées</li>
-      <li data-e="3"><b>3</b>Paiement</li>
+      <li data-e="2"><b>2</b>Compte</li>
+      <li data-e="3"><b>3</b>Coordonnées</li>
+      <li data-e="4"><b>4</b>Paiement</li>
     </ol>
   </div>
 
@@ -252,8 +253,86 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     </div>
   </section>
 
-  <!-- ================= ÉTAPE 2 — COORDONNÉES ================= -->
+
+  <!-- ================= ÉTAPE 2 — COMPTE ================= -->
   <section class="page" id="e2" hidden>
+    <div class="env">
+      <div class="page__tete">
+        <h1>Votre compte Cre8</h1>
+        <p>Il est nécessaire pour commander : c'est lui qui porte votre suivi de projet, vos contenus et vos factures.</p>
+      </div>
+      <div class="grille">
+        <div>
+          <div class="bloc" id="blocDeja" hidden>
+            <h2>Vous êtes connecté</h2>
+            <p id="deja" style="margin:0 0 1rem"></p>
+            <div style="display:flex; gap:.7rem; flex-wrap:wrap">
+              <button type="button" class="bouton bouton--bleu" id="vers3">Continuer</button>
+              <button type="button" class="bouton bouton--sobre bouton--petit" id="deconnexion">Changer de compte</button>
+            </div>
+          </div>
+
+          <div class="bloc" id="blocCompte">
+            <div class="onglets" role="tablist" style="margin-top:0">
+              <button role="tab" type="button" data-o="creation" aria-selected="true">Créer un compte</button>
+              <button role="tab" type="button" data-o="connexion" aria-selected="false">J'en ai déjà un</button>
+            </div>
+
+            <form class="champs" id="fCreationP">
+              <div class="duo">
+                <div class="champ"><label for="kNom">Nom et prénom</label><input id="kNom" autocomplete="name" required><span class="err" hidden>Champ requis.</span></div>
+                <div class="champ"><label for="kTel">Téléphone</label><input id="kTel" type="tel" autocomplete="tel" required><span class="err" hidden>Champ requis.</span></div>
+              </div>
+              <div class="champ"><label for="kEmail">E-mail</label><input id="kEmail" type="email" autocomplete="email" required><span class="err" hidden>Indiquez un e-mail valide.</span></div>
+              <div class="duo">
+                <div class="champ"><label for="kSociete">Société <i>(ou nom si indépendant)</i></label><input id="kSociete" autocomplete="organization"></div>
+                <div class="champ"><label for="kSecteur">Secteur d'activité</label>
+                  <select id="kSecteur">
+                    <option value="">Choisir…</option>
+                    <option>Artisan, bâtiment</option><option>Restaurant, café, traiteur</option>
+                    <option>Santé, bien-être</option><option>Commerce, produits</option>
+                    <option>Conseil, profession libérale</option><option>Immobilier</option>
+                    <option>ASBL, association</option><option>Autre</option>
+                  </select>
+                </div>
+              </div>
+              <div class="champ"><label for="kMdp">Mot de passe <i>(8 caractères minimum)</i></label><input id="kMdp" type="password" autocomplete="new-password" required><span class="err" hidden>8 caractères minimum.</span></div>
+              <label class="consent"><input type="checkbox" id="kCgu" required><span>J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a>.</span></label>
+              <p class="err" id="errCreation" style="color:var(--alerte); font-size:.86rem" hidden>Vérifiez les champs signalés.</p>
+              <button class="bouton bouton--bleu bouton--plein" type="submit">Créer mon compte et continuer</button>
+            </form>
+
+            <form class="champs" id="fConnexionP" hidden>
+              <div class="champ"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="email" required><span class="err" hidden>Indiquez un e-mail valide.</span></div>
+              <div class="champ"><label for="lMdp">Mot de passe</label><input id="lMdp" type="password" autocomplete="current-password" required><span class="err" hidden>Champ requis.</span></div>
+              <button class="bouton bouton--bleu bouton--plein" type="submit">Se connecter et continuer</button>
+              <p style="text-align:center; margin:.2rem 0 0"><a href="#" style="font-size:.88rem; color:var(--gris-txt)">Mot de passe oublié ?</a></p>
+            </form>
+
+            <p class="info" style="margin-top:1.1rem"><b>Démonstration —</b> aucune authentification n'est branchée. Les données restent dans ce navigateur.</p>
+          </div>
+
+          <p style="margin-top:1rem"><button type="button" class="bouton bouton--sobre bouton--petit" data-retour="1">Retour au panier</button></p>
+        </div>
+
+        <aside class="recap">
+          <p class="recap__tete">Ce que le compte apporte</p>
+          <div class="recap__corps">
+            <ul style="list-style:none; margin:0 0 1rem; padding:0; font-size:.93rem">
+              <li style="display:grid; grid-template-columns:auto 1fr; gap:.6rem; padding:.4rem 0"><svg width="17" height="17" style="color:var(--vert); margin-top:.2rem" aria-hidden="true"><use href="#i-check"/></svg><span>Le suivi de votre projet en temps réel</span></li>
+              <li style="display:grid; grid-template-columns:auto 1fr; gap:.6rem; padding:.4rem 0"><svg width="17" height="17" style="color:var(--vert); margin-top:.2rem" aria-hidden="true"><use href="#i-check"/></svg><span>Le dépôt de vos textes, photos et logo</span></li>
+              <li style="display:grid; grid-template-columns:auto 1fr; gap:.6rem; padding:.4rem 0"><svg width="17" height="17" style="color:var(--vert); margin-top:.2rem" aria-hidden="true"><use href="#i-check"/></svg><span>Vos factures et votre garantie au même endroit</span></li>
+              <li style="display:grid; grid-template-columns:auto 1fr; gap:.6rem; padding:.4rem 0"><svg width="17" height="17" style="color:var(--vert); margin-top:.2rem" aria-hidden="true"><use href="#i-check"/></svg><span>Vos coordonnées préremplies aux commandes suivantes</span></li>
+            </ul>
+            <p class="recap__note">Compte gratuit, sans engagement. Vous pouvez le supprimer à tout moment.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ÉTAPE 3 — COORDONNÉES ================= -->
+  <section class="page" id="e3" hidden>
     <div class="env">
       <div class="page__tete">
         <h1>Vos coordonnées</h1>
@@ -310,8 +389,8 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     </div>
   </section>
 
-  <!-- ================= ÉTAPE 3 — PAIEMENT ================= -->
-  <section class="page" id="e3" hidden>
+  <!-- ================= ÉTAPE 4 — PAIEMENT ================= -->
+  <section class="page" id="e4" hidden>
     <div class="env">
       <div class="page__tete">
         <h1>Paiement</h1>
@@ -350,7 +429,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
           </div>
 
           <div style="display:flex; gap:.7rem; flex-wrap:wrap">
-            <button type="button" class="bouton bouton--sobre" data-retour="2">Retour</button>
+            <button type="button" class="bouton bouton--sobre" data-retour="3">Retour</button>
             <button type="submit" class="bouton bouton--bleu" id="btnPayer">Payer 0 €</button>
           </div>
         </form>
@@ -370,7 +449,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   </section>
 
   <!-- ================= CONFIRMATION ================= -->
-  <section class="page" id="e4" hidden>
+  <section class="page" id="e5" hidden>
     <div class="env fini">
       <span class="fini__marque"><svg aria-hidden="true"><use href="#i-check"/></svg></span>
       <h1 style="font-size:clamp(1.8rem,3.6vw,2.6rem)">Commande enregistrée</h1>
@@ -532,18 +611,110 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   });
   document.querySelectorAll('input[name="part"]').forEach(function (i) { i.addEventListener('change', rendre); });
 
+
+  /* ============================================================
+     COMPTE
+     Stockage local avec repli mémoire. Le compte conditionne le
+     passage à la commande et préremplit tout ce qui suit.
+     À BRANCHER : POST /api/inscription et POST /api/connexion,
+     qui renvoient le profil ; remplacer Compte.ecrire() par la
+     réponse du serveur.
+     ============================================================ */
+  var memC = null;
+  var Compte = {
+    lire: function () {
+      try { var v = localStorage.getItem('cre8_compte'); if (v) return JSON.parse(v); } catch (e) {}
+      return memC;
+    },
+    ecrire: function (o) { memC = o; try { localStorage.setItem('cre8_compte', JSON.stringify(o)); } catch (e) {} },
+    vider: function () { memC = null; try { localStorage.removeItem('cre8_compte'); } catch (e) {} },
+    connecte: function () { return !!(this.lire() && this.lire().email); }
+  };
+  window.Compte = Compte;
+
+  function majCompte() {
+    var c = Compte.lire();
+    $('#blocDeja').hidden = !Compte.connecte();
+    $('#blocCompte').hidden = Compte.connecte();
+    if (c) {
+      $('#deja').innerHTML = '<b>' + (c.nom || c.email) + '</b><br>' + c.email +
+        (c.societe ? ' · ' + c.societe : '') + (c.secteur ? ' · ' + c.secteur : '');
+      var b = document.getElementById('btnCompte');
+      if (b) b.querySelector('.txt').textContent = (c.nom || '').split(' ')[0] || 'Mon compte';
+    }
+    prerempli();
+  }
+
+  /* le compte remplit l'étape coordonnées */
+  function prerempli() {
+    var c = Compte.lire(); if (!c) return;
+    [['#nom', c.nom], ['#email', c.email], ['#tel', c.tel], ['#societe', c.societe],
+     ['#tva_num', c.tva], ['#rue', c.rue], ['#cp', c.cp], ['#ville', c.ville]].forEach(function (p) {
+      var el = $(p[0]); if (el && !el.value && p[1]) el.value = p[1];
+    });
+    if (c.pays) { var s = $('#pays'); if (s) s.value = c.pays; }
+  }
+
+  document.querySelectorAll('#blocCompte .onglets button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#blocCompte .onglets button').forEach(function (x) {
+        x.setAttribute('aria-selected', String(x === b));
+      });
+      $('#fCreationP').hidden = b.dataset.o !== 'creation';
+      $('#fConnexionP').hidden = b.dataset.o !== 'connexion';
+    });
+  });
+
+  $('#fCreationP').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var mdpOk = $('#kMdp').value.length >= 8;
+    $('#kMdp').parentNode.querySelector('.err').hidden = mdpOk;
+    var ok = valide(this) && mdpOk && $('#kCgu').checked;
+    $('#errCreation').hidden = ok;
+    if (!ok) return;
+    Compte.ecrire({
+      nom: $('#kNom').value.trim(), email: $('#kEmail').value.trim(), tel: $('#kTel').value.trim(),
+      societe: $('#kSociete').value.trim(), secteur: $('#kSecteur').value, pays: 'Belgique'
+    });
+    majCompte(); etape(3);
+  });
+
+  $('#fConnexionP').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valide(this)) return;
+    /* démonstration : on ouvre une session à partir du seul e-mail */
+    var c = Compte.lire() || {};
+    c.email = $('#lEmail').value.trim();
+    Compte.ecrire(c); majCompte(); etape(3);
+  });
+
+  $('#vers3').addEventListener('click', function () { etape(3); });
+  $('#deconnexion').addEventListener('click', function () { Compte.vider(); majCompte(); });
+
+  /* on garde le profil à jour avec ce qui est saisi aux coordonnées */
+  function memoriser() {
+    var c = Compte.lire(); if (!c) return;
+    c.nom = $('#nom').value || c.nom; c.tel = $('#tel').value || c.tel;
+    c.societe = $('#societe').value || c.societe; c.tva = $('#tva_num').value || c.tva;
+    c.rue = $('#rue').value; c.cp = $('#cp').value; c.ville = $('#ville').value; c.pays = $('#pays').value;
+    Compte.ecrire(c);
+  }
+
   /* ---------- étapes ---------- */
   function etape(n) {
-    [1,2,3,4].forEach(function (x) { $('#e' + x).hidden = x !== n; });
+    [1,2,3,4,5].forEach(function (x) { $('#e' + x).hidden = x !== n; });
     document.querySelectorAll('#fil li').forEach(function (li) {
       var e = Number(li.dataset.e);
       li.setAttribute('aria-current', String(e === n));
       li.classList.toggle('fait', e < n);
     });
-    $('#fil').hidden = n === 4;
+    $('#fil').hidden = n === 5;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  $('#vers2').addEventListener('click', function () { if (panier.items.length) etape(2); });
+  $('#vers2').addEventListener('click', function () {
+    if (!panier.items.length) return;
+    etape(Compte.connecte() ? 3 : 2);   /* le compte est requis avant de commander */
+  });
   document.querySelectorAll('[data-retour]').forEach(function (b) {
     b.addEventListener('click', function () { etape(Number(b.dataset.retour)); });
   });
@@ -561,7 +732,10 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   }
   $('#fCoord').addEventListener('submit', function (e) {
     e.preventDefault();
-    if (valide(this)) { panier.client = { email: $('#email').value }; Boite.ecrire(panier); etape(3); }
+    if (!valide(this)) return;
+    memoriser();
+    panier.client = { email: $('#email').value }; Boite.ecrire(panier);
+    etape(4);
   });
 
   $('#fPaie').addEventListener('submit', function (e) {
@@ -575,13 +749,15 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     $('#ref').textContent = 'CRE8-' + String(Date.now()).slice(-6);
     $('#mailFini').textContent = ($('#email').value || 'votre adresse');
     panier = { items: [] }; Boite.ecrire(panier); rendre();
-    etape(4);
+    etape(5);
   });
 
   /* ---------- panneau compte ---------- */
   var voile = $('#voileCompte');
   function compte(o) { voile.hidden = !o; document.body.style.overflow = o ? 'hidden' : ''; }
-  $('#btnCompte').addEventListener('click', function () { compte(true); });
+  $('#btnCompte').addEventListener('click', function () {
+    if (Compte.connecte()) { etape(2); } else { compte(true); }
+  });
   $('#fermerCompte').addEventListener('click', function () { compte(false); });
   voile.addEventListener('click', function (e) { if (e.target === voile) compte(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') compte(false); });
@@ -599,7 +775,9 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     });
   });
 
+  majCompte();
   rendre(); etape(1);
+  if (location.hash === '#compte') etape(2);
   $('#annee').textContent = new Date().getFullYear();
 })();
 </script>
