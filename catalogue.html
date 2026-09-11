@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le catalogue — un site prêt en 5 jours | Cre8</title>
+<meta name="description" content="Huit styles de sites déjà construits. Vous choisissez, vous envoyez votre logo et vos textes, vous recevez votre site en 5 jours ouvrés. À partir de 249 €.">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#000; --bleu:#313EFF; --peri:#9FA1FF; --cyan:#32B4E6;
+  --papier:#fff; --gris:#F3F4F8; --gris-txt:#54555F; --gris-nuit:#8E8FA0;
+  --trait:#E4E5EC; --trait-nuit:rgba(255,255,255,.16);
+  --vert:#0B8A5B; --vert-fond:rgba(11,138,91,.09);
+  --alerte:#B4442C;
+  --degrade:linear-gradient(100deg,var(--bleu) 0%,var(--peri) 100%);
+  --titre:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --texte:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  --g:clamp(1.1rem,4vw,3rem);
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{transition-duration:.001ms!important} }
+body{ margin:0; background:var(--papier); color:var(--noir); font-family:var(--texte); font-size:1.0625rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+h1,h2,h3,h4{ font-family:var(--titre); letter-spacing:-.035em; line-height:1.05; margin:0; }
+p{ margin:0 0 1em; }
+a{ color:inherit; }
+img{ display:block; max-width:100%; height:auto; }
+:focus-visible{ outline:3px solid var(--bleu); outline-offset:3px; border-radius:6px; }
+.env{ max-width:1240px; margin-inline:auto; padding-inline:var(--g); }
+.saut{ position:absolute; left:-9999px; background:var(--noir); color:#fff; padding:.7rem 1.2rem; border-radius:999px; z-index:200; }
+.saut:focus{ left:1rem; top:1rem; }
+[hidden]{ display:none !important; }
+
+.bouton{ display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  font-family:var(--titre); font-weight:700; font-size:.95rem;
+  min-height:54px; padding:0 2.1rem; border:2px solid var(--noir); border-radius:999px;
+  background:var(--noir); color:#fff; text-decoration:none; cursor:pointer; line-height:1.15;
+  box-shadow:0 10px 24px -12px rgba(20,22,60,.55);
+  transition:background .16s, transform .16s cubic-bezier(.2,.8,.3,1), box-shadow .16s; }
+.bouton:hover{ transform:translateY(-2px); background:var(--bleu); border-color:var(--bleu); }
+.bouton:active{ transform:translateY(0); }
+.bouton--bleu{ background:var(--bleu); border-color:var(--bleu); box-shadow:0 12px 28px -12px rgba(49,62,255,.6); }
+.bouton--bleu:hover{ background:var(--noir); border-color:var(--noir); }
+.bouton--sobre{ background:#fff; color:var(--noir); box-shadow:none; }
+.bouton--sobre:hover{ background:var(--noir); color:#fff; }
+.bouton--plein{ width:100%; }
+.bouton--petit{ min-height:44px; padding:0 1.5rem; font-size:.88rem; }
+
+.statut{ background:var(--noir); color:#fff; }
+.statut__in{ display:flex; align-items:center; gap:1rem; min-height:38px; }
+.statut__retour{ font-family:var(--titre); font-weight:600; font-size:.79rem; color:var(--gris-nuit); text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; }
+.statut__retour:hover{ color:#fff; }
+.statut__retour svg{ width:14px; height:14px; }
+.langues{ margin-left:auto; display:flex; align-items:center; gap:.15rem; }
+.langues button{ font-family:var(--titre); font-weight:700; font-size:.75rem; padding:.28rem .6rem; border-radius:999px; background:transparent; color:var(--gris-nuit); border:none; cursor:pointer; }
+.langues button:hover{ color:#fff; }
+.langues button[aria-current="true"]{ background:rgba(255,255,255,.16); color:#fff; }
+.langues span{ color:rgba(255,255,255,.25); font-size:.7rem; }
+
+.entete{ border-bottom:1px solid var(--trait); }
+.entete__in{ display:flex; align-items:center; gap:1.25rem; min-height:70px; flex-wrap:wrap; }
+.entete img{ height:24px; width:auto; }
+.entete__lien{ margin-left:auto; font-family:var(--titre); font-weight:600; font-size:.86rem; text-decoration:none; padding:.4rem .9rem; border-radius:999px; background:var(--gris); }
+.entete__lien:hover{ background:var(--noir); color:#fff; }
+
+
+/* ---- outils d'en-tête : compte et panier ---- */
+.outils{ display:flex; align-items:center; gap:.5rem; }
+.icone{ position:relative; display:inline-flex; align-items:center; justify-content:center; gap:.45rem;
+  min-height:44px; padding:0 1rem; border:none; border-radius:999px; background:var(--gris,#F3F4F8);
+  font-family:var(--titre); font-weight:700; font-size:.86rem; color:var(--noir); cursor:pointer; text-decoration:none; }
+.icone:hover{ background:var(--noir); color:#fff; }
+.icone svg{ width:17px; height:17px; }
+.icone__pastille{ min-width:19px; height:19px; padding:0 5px; border-radius:999px; background:var(--bleu); color:#fff; font-size:.7rem; display:inline-flex; align-items:center; justify-content:center; }
+.icone__pastille[hidden]{ display:none; }
+@media (max-width:700px){ .icone span.txt{ display:none; } .icone{ padding:0 .85rem; } }
+/* ---- intro ---- */
+.intro{ padding:clamp(2.2rem,4.5vw,3.5rem) 0 1.5rem; }
+.puce{ display:inline-flex; align-items:center; gap:.5rem; font-family:var(--titre); font-weight:600; font-size:.82rem; padding:.42rem .95rem; border-radius:999px; background:rgba(50,180,230,.22); margin-bottom:1.2rem; }
+.intro h1{ font-size:clamp(2rem,4.4vw,3.2rem); font-weight:800; letter-spacing:-.045em; margin-bottom:1rem; max-width:19ch; }
+.intro h1 em{ font-style:normal; background:var(--degrade); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.intro__chapo{ color:var(--gris-txt); max-width:58ch; font-size:1.08rem; }
+.chiffres{ display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:2rem; padding:1.4rem 0; border-block:1px solid var(--trait); }
+@media (max-width:760px){ .chiffres{ grid-template-columns:repeat(2,1fr); } }
+.chiffres b{ display:block; font-family:var(--titre); font-weight:800; font-size:1.7rem; letter-spacing:-.05em; font-variant-numeric:tabular-nums; }
+.chiffres span{ font-size:.85rem; color:var(--gris-txt); }
+
+/* ---- filtres ---- */
+.filtres{ display:flex; flex-wrap:wrap; gap:.45rem; padding:1.75rem 0 1.25rem; align-items:center; }
+.filtres > span{ font-family:var(--titre); font-weight:700; font-size:.82rem; margin-right:.4rem; }
+.filtres button{ font-family:var(--titre); font-weight:600; font-size:.85rem; padding:.5rem 1rem; border-radius:999px; border:1.5px solid var(--trait); background:#fff; color:var(--gris-txt); cursor:pointer; transition:.15s; }
+.filtres button:hover{ border-color:var(--noir); color:var(--noir); }
+.filtres button[aria-pressed="true"]{ background:var(--noir); border-color:var(--noir); color:#fff; }
+
+/* ---- grille de styles ---- */
+.styles{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; padding-bottom:3rem; }
+@media (max-width:1000px){ .styles{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:640px){ .styles{ grid-template-columns:1fr; } }
+.style{ border:1.5px solid var(--trait); border-radius:24px; overflow:hidden; display:flex; flex-direction:column; background:#fff; transition:border-color .16s, box-shadow .16s, transform .16s; }
+.style:hover{ border-color:var(--noir); transform:translateY(-3px); box-shadow:0 18px 40px -24px rgba(20,22,60,.4); }
+.style--choisi{ border-color:var(--bleu); box-shadow:0 0 0 3px rgba(49,62,255,.16); }
+.style__vue{ aspect-ratio:4/3; padding:14px; position:relative; }
+.style__ecran{ height:100%; border-radius:12px; overflow:hidden; padding:11px; font-family:var(--titre); display:flex; flex-direction:column; }
+.style__corps{ padding:1.25rem 1.35rem 1.4rem; display:flex; flex-direction:column; flex:1; }
+.style__nom{ display:flex; align-items:baseline; justify-content:space-between; gap:.75rem; margin-bottom:.35rem; }
+.style__nom h3{ font-size:1.2rem; font-weight:800; letter-spacing:-.04em; }
+.style__prix{ font-family:var(--titre); font-weight:800; font-size:1.2rem; letter-spacing:-.04em; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.style__pour{ font-size:.9rem; color:var(--gris-txt); margin:0 0 .9rem; }
+.style__meta{ display:flex; flex-wrap:wrap; gap:.35rem; margin-bottom:1.1rem; }
+.style__meta span{ font-family:var(--titre); font-weight:600; font-size:.72rem; padding:.26rem .7rem; border-radius:999px; background:var(--gris); color:var(--gris-txt); }
+.style__actions{ margin-top:auto; display:grid; gap:.5rem; }
+.style__actions .bouton{ width:100%; }
+.style__bientot{ text-align:center; font-family:var(--titre); font-weight:600; font-size:.8rem; color:var(--gris-nuit); padding:.55rem; border:1.5px dashed var(--trait); border-radius:999px; }
+
+/* aperçus miniatures */
+.ap__barre{ display:flex; justify-content:space-between; align-items:center; font-size:6.5px; font-weight:800; padding-bottom:5px; margin-bottom:6px; }
+.ap__barre i{ display:flex; gap:4px; font-style:normal; font-weight:600; opacity:.62; }
+.ap__h1{ font-weight:800; line-height:1; letter-spacing:-.04em; margin-bottom:4px; }
+.ap__l{ height:3px; border-radius:9px; opacity:.28; margin-bottom:3px; }
+.ap__bloc{ border-radius:7px; flex:1; min-height:26px; }
+.ap__row{ display:grid; gap:4px; margin-top:6px; }
+.ap__row--3{ grid-template-columns:repeat(3,1fr); }
+.ap__row--2{ grid-template-columns:repeat(2,1fr); }
+.ap__case{ border-radius:6px; min-height:20px; }
+.ap__li{ display:flex; justify-content:space-between; font-size:5.5px; padding:3px 0; border-bottom:1px solid currentColor; opacity:.55; }
+.ap__pill{ display:inline-block; font-size:5.5px; font-weight:700; padding:2px 6px; border-radius:99px; }
+
+/* ---- commande ---- */
+.commande{ background:var(--noir); color:#fff; padding:clamp(2.5rem,5vw,4rem) 0; }
+.commande h2{ font-size:clamp(1.6rem,3vw,2.4rem); font-weight:800; margin-bottom:.7rem; }
+.commande h2::before{ content:"{\00A0"; color:var(--peri); }
+.commande h2::after{ content:"\00A0}"; color:var(--peri); }
+.commande__intro{ color:var(--gris-nuit); max-width:60ch; }
+.commande__grille{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:clamp(1.5rem,4vw,3rem); margin-top:2rem; }
+@media (max-width:920px){ .commande__grille{ grid-template-columns:1fr; } }
+.panier{ background:rgba(255,255,255,.05); border:1px solid var(--trait-nuit); border-radius:24px; padding:1.5rem; }
+.panier__vide{ color:var(--gris-nuit); font-size:.92rem; margin:0; }
+.panier__nom{ font-family:var(--titre); font-weight:800; font-size:1.5rem; letter-spacing:-.04em; margin:0 0 .2rem; }
+.panier__pour{ color:var(--gris-nuit); font-size:.9rem; margin:0 0 1.1rem; }
+.panier dl{ margin:0; font-size:.9rem; border-top:1px solid var(--trait-nuit); padding-top:.9rem; }
+.panier dl div{ display:flex; justify-content:space-between; gap:1rem; padding:.3rem 0; }
+.panier dt{ color:var(--gris-nuit); }
+.panier dd{ margin:0; font-family:var(--titre); font-weight:700; font-variant-numeric:tabular-nums; }
+.panier__total{ display:flex; justify-content:space-between; align-items:baseline; margin-top:.9rem; padding-top:.9rem; border-top:2px solid rgba(255,255,255,.45); }
+.panier__total span{ font-family:var(--titre); font-weight:700; font-size:.9rem; }
+.panier__total b{ font-family:var(--titre); font-weight:800; font-size:2rem; letter-spacing:-.05em; font-variant-numeric:tabular-nums; }
+.fournir{ margin-top:1.2rem; padding-top:1.1rem; border-top:1px solid var(--trait-nuit); }
+.fournir h3{ font-size:.92rem; font-weight:800; margin-bottom:.6rem; }
+.fournir ul{ list-style:none; margin:0; padding:0; font-size:.87rem; color:var(--gris-nuit); }
+.fournir li{ display:grid; grid-template-columns:auto 1fr; gap:.55rem; padding:.3rem 0; }
+.fournir svg{ width:15px; height:15px; color:var(--peri); margin-top:.25rem; }
+.delai{ margin:1rem 0 0; padding:.85rem 1rem; border-radius:14px; background:rgba(50,180,230,.16); border:1px solid rgba(50,180,230,.4); font-size:.83rem; line-height:1.5; color:var(--gris-nuit); }
+.delai b{ color:#fff; }
+
+.champs{ display:grid; gap:1rem; background:rgba(255,255,255,.045); border:1px solid var(--trait-nuit); border-radius:26px; padding:clamp(1.3rem,3vw,1.9rem); }
+.champ{ display:flex; flex-direction:column; gap:.4rem; }
+.champ label{ font-family:var(--titre); font-weight:600; font-size:.84rem; }
+.champ label i{ font-style:normal; font-weight:400; color:var(--gris-nuit); }
+.champ input,.champ textarea{ font-family:var(--texte); font-size:1rem; color:#fff; background:rgba(255,255,255,.06); border:1.5px solid transparent; border-radius:15px; padding:.8rem 1rem; transition:.16s; }
+.champ input::placeholder,.champ textarea::placeholder{ color:rgba(255,255,255,.32); }
+.champ textarea{ min-height:96px; resize:vertical; }
+.champ input:focus,.champ textarea:focus{ outline:none; border-color:var(--peri); box-shadow:0 0 0 4px rgba(159,161,255,.18); }
+.champ .err{ font-size:.8rem; color:#FF8A7A; }
+.duo{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:560px){ .duo{ grid-template-columns:1fr; } }
+.consent{ display:flex; gap:.7rem; align-items:flex-start; font-size:.85rem; color:var(--gris-nuit); }
+.consent input{ margin-top:.25rem; width:19px; height:19px; accent-color:var(--bleu); flex:0 0 auto; }
+.accuse{ padding:.9rem 1.15rem; border-radius:15px; background:var(--degrade); color:#fff; font-family:var(--titre); font-weight:600; font-size:.92rem; }
+
+/* ---- limites ---- */
+.limites{ padding:clamp(2.5rem,5vw,4rem) 0; }
+.limites__grille{ display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-top:1.5rem; }
+@media (max-width:820px){ .limites__grille{ grid-template-columns:1fr; } }
+.limites h2{ font-size:clamp(1.6rem,3vw,2.3rem); font-weight:800; }
+.limites h2::before{ content:"{\00A0"; color:var(--bleu); }
+.limites h2::after{ content:"\00A0}"; color:var(--bleu); }
+.carte{ border-radius:22px; padding:1.5rem; }
+.carte--oui{ background:var(--vert-fond); }
+.carte--non{ background:rgba(180,68,44,.07); }
+.carte h3{ font-size:1.05rem; font-weight:800; margin-bottom:.8rem; }
+.carte--oui h3{ color:var(--vert); } .carte--non h3{ color:var(--alerte); }
+.carte ul{ list-style:none; margin:0; padding:0; font-size:.93rem; color:var(--gris-txt); }
+.carte li{ display:grid; grid-template-columns:auto 1fr; gap:.6rem; padding:.35rem 0; }
+.carte svg{ width:16px; height:16px; margin-top:.28rem; }
+.carte--oui svg{ color:var(--vert); } .carte--non svg{ color:var(--alerte); }
+.bascule{ margin-top:1.75rem; padding:1.4rem 1.6rem; border-radius:22px; background:var(--gris); display:flex; gap:1.25rem; align-items:center; flex-wrap:wrap; }
+.bascule p{ margin:0; flex:1; min-width:16rem; font-size:.96rem; color:var(--gris-txt); }
+.bascule b{ color:var(--noir); }
+
+.pied{ background:var(--noir); color:var(--gris-nuit); padding:0 0 3rem; font-size:.8rem; }
+.pied__in{ padding-top:1.3rem; border-top:1px solid var(--trait-nuit); display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; justify-content:space-between; }
+
+.mobile{ position:fixed; left:.7rem; right:.7rem; bottom:.7rem; z-index:90; display:none; align-items:center; gap:.8rem; background:var(--noir); color:#fff; border-radius:999px; padding:.55rem .55rem .55rem 1.2rem; box-shadow:0 16px 34px -12px rgba(0,0,0,.55); }
+.mobile b{ font-family:var(--titre); font-weight:800; font-size:1rem; }
+.mobile small{ display:block; font-size:.7rem; color:var(--gris-nuit); }
+.mobile .bouton{ margin-left:auto; background:#fff; color:var(--noir); border-color:#fff; }
+@media (max-width:820px){ .mobile{ display:flex; } body{ padding-bottom:4.5rem; } }
+</style>
+</head>
+<body>
+<a class="saut" href="#styles">Aller au catalogue</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-panier" viewBox="0 0 24 24"><path d="M4 7h16l-1.5 12.2a2 2 0 01-2 1.8H7.5a2 2 0 01-2-1.8L4 7z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M8.6 7a3.4 3.4 0 016.8 0" fill="none" stroke="currentColor" stroke-width="1.9"/></symbol>
+<symbol id="i-tete" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.8" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="M4.5 20.5c0-4.1 3.4-6.6 7.5-6.6s7.5 2.5 7.5 6.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4.8 12.6l4.6 4.6L19.2 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-croix" viewBox="0 0 24 24"><path d="M6.4 6.4l11.2 11.2M17.6 6.4L6.4 17.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="i-fleche" viewBox="0 0 24 24"><path d="M10 5.5L3.5 12l6.5 6.5M3.5 12h17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-eclair" viewBox="0 0 24 24"><path d="M13.4 2.5L4.6 13.4h6.2l-1.2 8.1 8.8-10.9h-6.2l1.2-8.1z" fill="currentColor"/></symbol>
+</defs></svg>
+
+<div class="statut">
+  <div class="env statut__in">
+    <a class="statut__retour" href="index.html"><svg aria-hidden="true"><use href="#i-fleche"/></svg><span>Retour au site</span></a>
+    <div class="langues" role="group" aria-label="Langue / Language">
+      <button type="button" data-lang="fr" aria-current="true">FR</button>
+      <span aria-hidden="true">/</span>
+      <button type="button" data-lang="en" aria-current="false">EN</button>
+    </div>
+  </div>
+</div>
+
+<header class="entete">
+  <div class="env entete__in">
+    <a href="index.html" aria-label="Cre8"><img src="data:image/png;base64,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" alt="Cre8" width="620" height="204"></a>
+    <div class="outils">
+      <button type="button" class="icone" id="btnCompte" aria-haspopup="dialog">
+        <svg aria-hidden="true"><use href="#i-tete"/></svg><span class="txt">Compte</span>
+      </button>
+      <a class="icone" href="panier.html">
+        <svg aria-hidden="true"><use href="#i-panier"/></svg><span class="txt">Panier</span>
+        <span class="icone__pastille" id="pastille" hidden>0</span>
+      </a>
+    </div>
+    <a class="entete__lien" href="configurateur.html">Besoin de sur-mesure ?</a>
+  </div>
+</header>
+
+<main>
+  <section class="intro">
+    <div class="env">
+      <p class="puce"><svg width="14" height="14" aria-hidden="true"><use href="#i-eclair"/></svg> Livré en 5 jours ouvrés</p>
+      <h1>Huit sites déjà construits. Le vôtre en <em>5 jours</em>.</h1>
+      <p class="intro__chapo">
+        Le travail de conception est déjà fait. Vous choisissez un style, vous nous envoyez
+        votre logo, vos textes et vos photos, on l'habille à vos couleurs et on le met en
+        ligne. C'est le même socle technique que nos sites sur mesure, sans le temps de
+        conception — donc sans son prix.
+      </p>
+      <div class="chiffres">
+        <div><b>249 €</b><span>le premier prix, tout compris</span></div>
+        <div><b>5 j</b><span>entre la commande et la mise en ligne</span></div>
+        <div><b>8</b><span>styles, un par type d'activité</span></div>
+        <div><b>0</b><span>rendez-vous nécessaire</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="env" id="styles">
+    <div class="filtres" role="group" aria-label="Filtrer par activité">
+      <span>Filtrer :</span>
+      <button type="button" data-f="tous" aria-pressed="true">Tous</button>
+      <button type="button" data-f="artisan" aria-pressed="false">Artisan</button>
+      <button type="button" data-f="horeca" aria-pressed="false">Horeca</button>
+      <button type="button" data-f="sante" aria-pressed="false">Santé</button>
+      <button type="button" data-f="commerce" aria-pressed="false">Commerce</button>
+      <button type="button" data-f="conseil" aria-pressed="false">Conseil</button>
+      <button type="button" data-f="asbl" aria-pressed="false">Association</button>
+    </div>
+    <div class="styles" id="grille"></div>
+  </section>
+
+  <section class="limites">
+    <div class="env">
+      <h2>Ce que le catalogue fait, et ce qu'il ne fait pas</h2>
+      <p style="color:var(--gris-txt); max-width:64ch">Le prix vient d'une contrainte, pas d'une remise. Autant la dire avant que vous commandiez.</p>
+      <div class="limites__grille">
+        <div class="carte carte--oui">
+          <h3>Compris dans le prix</h3>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Vos couleurs, votre logo et vos polices appliqués au style choisi</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Intégration de vos textes et de vos photos</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Formulaire de contact, carte et téléphone cliquable</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Nom de domaine et mise en ligne</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Un tour de corrections</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Code et accès à votre nom, comme sur le sur-mesure</span></li>
+          </ul>
+        </div>
+        <div class="carte carte--non">
+          <h3>Hors catalogue</h3>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-croix"/></svg><span>Changer la structure des pages ou l'ordre des blocs</span></li>
+            <li><svg aria-hidden="true"><use href="#i-croix"/></svg><span>Boutique, paiement ou réservation en ligne</span></li>
+            <li><svg aria-hidden="true"><use href="#i-croix"/></svg><span>Comptes utilisateurs, espace privé, application métier</span></li>
+            <li><svg aria-hidden="true"><use href="#i-croix"/></svg><span>Un design dessiné pour vous</span></li>
+            <li><svg aria-hidden="true"><use href="#i-croix"/></svg><span>Plus d'un tour de corrections</span></li>
+            <li><svg aria-hidden="true"><use href="#i-croix"/></svg><span>Rédaction de vos textes</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="bascule">
+        <p>Une de ces lignes vous bloque ? Ne forcez pas le catalogue. <b>Le sur-mesure part de 390 €</b> et fait tout ce qui est listé à droite — le configurateur vous donne le prix exact en une minute.</p>
+        <a class="bouton bouton--sobre" href="configurateur.html">Voir le sur-mesure</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="commande" id="commande">
+    <div class="env">
+      <h2>Commander votre style</h2>
+      <p class="commande__intro">Choisissez un style ci-dessus, remplissez ces champs, et envoyez. On revient sous 24 heures ouvrées avec la liste précise des éléments à nous transmettre.</p>
+
+      <div class="commande__grille">
+        <div class="panier">
+          <div id="panierVide"><p class="panier__vide">Aucun style sélectionné pour l'instant. Cliquez sur « Choisir ce style » dans le catalogue.</p></div>
+          <div id="panierPlein" hidden>
+            <p class="panier__nom" id="pNom"></p>
+            <p class="panier__pour" id="pPour"></p>
+            <dl>
+              <div><dt>Pages</dt><dd id="pPages"></dd></div>
+              <div><dt>Délai</dt><dd id="pDelai"></dd></div>
+              <div><dt>Corrections</dt><dd>1 tour</dd></div>
+              <div><dt>Domaine et mise en ligne</dt><dd>Compris</dd></div>
+            </dl>
+            <div class="panier__total"><span>Prix ferme, hors TVA</span><b id="pPrix"></b></div>
+          </div>
+
+          <div class="fournir">
+            <h3>Ce que vous nous transmettez</h3>
+            <ul>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Votre logo, en fichier vectoriel si vous l'avez</span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Vos couleurs et polices, ou votre charte graphique</span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Les textes de chaque page</span></li>
+              <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Vos photos, et vos coordonnées complètes</span></li>
+            </ul>
+            <p class="delai"><b>Le compteur des 5 jours démarre à la réception complète de ces éléments</b>, pas à la commande. C'est la seule chose qui peut décaler la livraison.</p>
+          </div>
+        </div>
+
+        <form class="champs" id="formulaire" novalidate>
+          <div class="duo">
+            <div class="champ"><label for="nom">Nom et prénom</label><input id="nom" type="text" autocomplete="name" placeholder="Camille Vandenberghe" required><span class="err" id="err-nom" hidden>Indiquez votre nom.</span></div>
+            <div class="champ"><label for="societe">Société</label><input id="societe" type="text" autocomplete="organization" placeholder="Menuiserie Vandenberghe"></div>
+          </div>
+          <div class="duo">
+            <div class="champ"><label for="email">E-mail</label><input id="email" type="email" autocomplete="email" placeholder="camille@monentreprise.be" required><span class="err" id="err-email" hidden>Indiquez un e-mail valide.</span></div>
+            <div class="champ"><label for="tel">Téléphone <i>(facultatif)</i></label><input id="tel" type="tel" autocomplete="tel"></div>
+          </div>
+          <div class="champ"><label for="site">Site actuel <i>(facultatif)</i></label><input id="site" type="url" placeholder="https://"></div>
+          <div class="champ"><label for="message">Votre activité en deux lignes</label><textarea id="message" placeholder="Ex. : menuiserie à Namur, escaliers et terrasses sur mesure, deux compagnons." required></textarea><span class="err" id="err-message" hidden>Décrivez brièvement votre activité.</span></div>
+          <label class="consent"><input type="checkbox" id="consent"><span id="consentTxt">Je commande ce style au prix affiché et je m'engage à fournir mes contenus.</span></label>
+          <button class="bouton bouton--bleu bouton--plein" type="submit">Envoyer ma commande</button>
+          <p class="accuse" id="accuse" hidden></p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="mobile">
+  <div><b id="mTotal">Dès 249 €</b><small id="mNote">livré en 5 jours</small></div>
+  <a class="bouton bouton--petit" href="#commande">Commander</a>
+</div>
+
+<footer class="pied"><div class="env pied__in">
+  <span>© <span id="annee">2026</span> Qlicklab Collective — Cre8.</span>
+  <span>Mentions légales · Confidentialité · Conditions générales · TVA BE 0000.000.000</span>
+</div></footer>
+
+<script>
+
+/* ============================================================
+   PANIER — module partagé
+   Ajoute un article et redirige vers panier.html. Le stockage
+   local est tenté ; s'il est refusé, le panier voyage dans
+   l'URL. Aucune dépendance, aucun appel réseau.
+   ============================================================ */
+window.Panier = (function () {
+  function lire() {
+    try { var v = localStorage.getItem('cre8_panier'); if (v) return JSON.parse(v); } catch (e) {}
+    return { items: [] };
+  }
+  function ecrire(p) { try { localStorage.setItem('cre8_panier', JSON.stringify(p)); } catch (e) {} }
+  function coder(p) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,'-').replace(/\//g,'_');
+  }
+  function compte() { return (lire().items || []).length; }
+  function ajouter(article, aller) {
+    var p = lire(); p.items = p.items || []; p.items.push(article); ecrire(p);
+    majPastille();
+    if (aller !== false) location.href = 'panier.html?p=' + coder(p);
+  }
+  function majPastille() {
+    var e = document.getElementById('pastille');
+    if (e) { e.textContent = compte(); e.hidden = compte() === 0; }
+  }
+  document.addEventListener('DOMContentLoaded', majPastille);
+  return { ajouter: ajouter, compte: compte, majPastille: majPastille, lire: lire };
+})();
+
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var LEX = {"Aller au contenu": "Skip to content", "Menu": "Menu", "Pourquoi c'est possible": "Why it's possible", "Prix": "Pricing", "Ce qu'on construit": "What we build", "Conformité": "Compliance", "Avis": "Reviews", "Garantie": "Warranty", "Calculer mon prix": "Calculate my price", "Le collectif web low-cost de Qlicklab": "Qlicklab's low-cost web collective", "Un site en ligne à partir de": "A website online from", ". Le reste est affiché.": ". Everything else is on the price list.", "Pas de devis opaque, pas de forfait gonflé « au cas où ». Vous partez d'une base\n          minimale, vous ajoutez ce dont vous avez besoin, au prix indiqué.": "No vague quotes, no padded package “just in case”. You start from a minimal base and add only what you need, at the listed price.", "Comment c'est possible": "How it's possible", "Prix ferme, pas une estimation": "Firm price, not an estimate", "Livré en 14 jours": "Delivered in 14 days", "Code et accès à votre nom": "Code and accounts in your name", "Exemple réel — vitrine 4 pages avec réservation": "Typical example — 3-page site with contact form", "La base — site 1 page": "The base — 1-page site", "3 pages supplémentaires": "2 extra pages", "Réservation en ligne": "Contact form", "Hébergement, 1 an": "Hosting, 1 year", "Garantie 2 ans": "2-year warranty", "Total, prix ferme": "Total, firm price", "Hors TVA": "Excl. VAT", "Pourquoi on peut descendre aussi bas": "Why we can go this low", "Pas parce qu'on travaille moins bien. Parce qu'on a supprimé tout ce qui fait le prix d'une agence classique, et qu'on refuse ce qui casse la chaîne.": "Not because we work less carefully. Because we removed everything that makes a traditional agency expensive, and we refuse whatever breaks the chain.", "Stack unique": "Single stack", "Le même socle technique sur chaque projet. Aucune exception, même si vous la demandez. C'est ce qui divise le temps de développement.": "The same technical foundation on every project. No exceptions, even if you ask. That is what cuts development time in half.", "Commercial": "Sales staff", "Pas de rendez-vous de découverte gratuit, pas de présentation PowerPoint. Vous configurez vous-même, on développe.": "No free discovery meeting, no PowerPoint pitch. You configure it yourself, we build it.", "Tours de retours inclus": "Revision rounds included", "Inclus dans le prix. Les suivants sont facturés, à un tarif annoncé à l'avance. C'est ce qui garde le prix de base bas pour tout le monde.": "Included in the price. Further rounds are billed at a rate announced upfront. That is what keeps the base price low for everyone.", "Jours de cycle": "Days per cycle", "Le cycle est fixe. Un projet qui traîne coûte cher à tout le monde : on préfère cadrer serré et livrer vite.": "The cycle is fixed. A project that drags is expensive for everyone: we would rather scope tightly and deliver fast.", "Composez votre site, voyez le prix": "Build your site, watch the price", "Chaque ligne est un vrai prix, pas une fourchette. Ce que vous obtenez ici est le montant du devis, sauf si votre projet sort du cadre — auquel cas on vous le dit avant de commencer.": "Every line is a real price, not a range. What you get here is the amount on the quote, unless your project falls outside the scope — in which case we tell you before starting.", "La base": "The base", "Un site d'une page, sur notre socle technique, avec vos textes et vos images. Mis en ligne, responsive, rapide. C'est le plancher : tout le monde part de là.": "A one-page site on our technical foundation, with your text and images. Published, responsive, fast. It is the floor: everyone starts here.", "1 page": "1 page", "Mise en ligne": "Published", "2 tours de retours": "2 revision rounds", "Code à votre nom": "Code in your name", "Votre devis": "Your quote", "Aucune option pour l'instant. Vous partez au prix plancher.": "No options yet. You are at the floor price.", "À payer une fois": "One-off payment", "Puis, chaque mois": "Then, monthly", "Livraison estimée : 14 jours ouvrés": "Estimated delivery: 14 working days", "Sans l'option rédaction": "Without the copywriting option", ", vous vous engagez à nous fournir le contenu\n              textuel de vos pages dans les 3 jours ouvrés suivant la validation du dossier.\n              Passé ce délai, le cycle de livraison est décalé d'autant.": ", you agree to send us the text content for your pages within 3 working days of the file being approved. Beyond that, the delivery cycle shifts by the same amount.", "Envoyer ce devis": "Send this quote", "Tout décocher": "Clear all", "Montants hors TVA. Le devis est ferme après validation du cadrage.": "Amounts excl. VAT. The quote is firm once scoping is approved.", "Entreprise européenne, données européennes": "European company, European data", "Votre site part conforme, pas à régulariser plus tard": "Your site ships compliant, not to be fixed later", "Cre8 est une société belge du collectif Qlicklab. Rien de ce que nous livrons ne sort de l'Union européenne.": "Cre8 is a Belgian company within the Qlicklab collective. Nothing we deliver leaves the European Union.", "Précision utile : il n'existe pas de « certification RGPD » officielle délivrée par\n          une autorité pour un site web. Nous ne prétendons donc pas en avoir une. Ce que nous\n          garantissons est concret et vérifiable, et c'est la liste ci-contre.": "Worth stating plainly: there is no official “GDPR certification” issued by an authority for a website. So we do not claim to hold one. What we do guarantee is concrete and verifiable, and it is the list opposite.", "Conforme au RGPD dès la livraison": "GDPR-compliant on delivery", "Bandeau de consentement réellement bloquant, aucun traceur avant accord, formulaires avec finalité et durée de conservation, registre de traitement fourni, politique de confidentialité rédigée pour votre activité.": "A consent banner that genuinely blocks, no trackers before consent, forms with a stated purpose and retention period, processing register provided, privacy policy written for your business.", "Hébergement dans l'Union": "Hosting inside the EU", "Serveurs en Belgique, en France ou en Allemagne, chez des hébergeurs européens. Aucun transfert vers un pays tiers, donc aucune clause contractuelle type à négocier.": "Servers in Belgium, France or Germany, with European hosting providers. No transfer to a third country, so no standard contractual clauses to negotiate.", "Accessibilité et mentions légales": "Accessibility and legal notices", "Contrastes, navigation au clavier et structure sémantique conformes aux critères WCAG 2.1 niveau AA. Mentions légales, numéro d'entreprise et conditions générales en place à la mise en ligne.": "Contrast, keyboard navigation and semantic structure meeting WCAG 2.1 level AA. Legal notices, company number and terms in place at launch.", "Réversibilité totale": "Full reversibility", "Code, domaine, hébergement et comptes tiers à votre nom. Vous récupérez l'ensemble sur demande, sans frais de sortie ni délai de préavis. Un contrat de sous-traitance au sens de l'article 28 est signé si nous traitons vos données.": "Code, domain, hosting and third-party accounts in your name. You get everything back on request, with no exit fee and no notice period. A processor agreement under Article 28 is signed if we handle your data.", "Ce qu'en disent ceux qui ont payé": "What paying customers say", "Des PME belges qui se demandaient, comme vous, où était le piège à 390&nbsp;€.": "Belgian SMEs who wondered, like you, where the catch was at €390.", "Moyenne sur 27 projets livrés depuis 2024.": "Average across 27 projects delivered since 2024.", "Avis vérifiés Google": "Verified Google reviews", "J'avais trois devis entre 3 200 et 4 800 €, tous flous. Ici j'ai coché ce dont j'avais besoin, vu le total à l'écran, et payé exactement ça. Le site était en ligne treize jours plus tard.": "I had three quotes between €3,200 and €4,800, all vague. Here I ticked what I needed, saw the total on screen, and paid exactly that. The site was live thirteen days later.", "Menuiserie Delvaux, Namur": "Delvaux Joinery, Namur", "Ils m'ont dit non sur deux options dont je n'avais pas besoin. C'est ce qui m'a décidé à signer.": "They told me no on two options I did not need. That is what made me sign.", "Torréfaction Bonnet, Liège": "Bonnet Coffee Roasters, Liège", "Les rendez-vous se prennent seuls et les rappels ont divisé les absences par deux. Rentabilisé en un mois.": "Appointments book themselves and the reminders halved our no-shows. Paid for itself in a month.", "Cabinet de kiné, Sart-Tilman": "Physiotherapy practice, Sart-Tilman", "Le cycle de quatorze jours est serré : il faut fournir ses textes vite. Prévenu dès le départ, mais je le redis à qui veut se lancer.": "The fourteen-day cycle is tight: you have to supply your text quickly. They warned me upfront, but I would say it again to anyone starting out.", "Sotex, Herve": "Sotex, Herve", "Ce qu'on sait faire dans ce cadre": "What we can do within this scope", "Le prix bas n'est pas une promesse de tout faire. Voici le périmètre réel — et ce qui en sort.": "A low price is not a promise to do everything. Here is the real scope — and what falls outside it.", "Sites vitrines": "Brochure sites", "Le site qui explique ce que vous faites, à qui, et comment vous joindre — et qui vous fait remonter quand on cherche votre métier dans votre région.": "The site that explains what you do, for whom, and how to reach you — and that gets you found when someone searches for your trade in your area.", "Pages sur notre socle, personnalisées à vos couleurs": "Pages on our foundation, styled in your colours", "Chargement rapide sur mobile": "Fast loading on mobile", "Formulaires et prise de contact": "Forms and enquiries", "Contenu modifiable sans nous appeler": "Content you can edit without calling us", "Interfaces de vente": "Selling interfaces", "Boutique, catalogue, devis en ligne ou abonnement. Paiement, stock, TVA et e-mails de commande branchés proprement.": "Shop, catalogue, online quotes or subscriptions. Payment, stock, VAT and order emails wired up properly.", "Bancontact, carte, virement, Stripe": "Bancontact, card, transfer, Stripe", "Stocks et remises": "Stock and discounts", "Transporteurs et suivi": "Carriers and tracking", "Réservation": "Booking", "Créneaux, ressources, acomptes, rappels automatiques. Pour cabinets, ateliers, salles et prestataires de service.": "Slots, resources, deposits, automatic reminders. For practices, workshops, venues and service providers.", "Synchronisation agenda": "Calendar sync", "Rappels e-mail et SMS": "Email and SMS reminders", "Règles d'annulation": "Cancellation rules", "Applications métier": "Business applications", "Quand le tableur ne suffit plus. Comptes, droits, données, tableaux de bord, API vers vos outils existants.": "When the spreadsheet is no longer enough. Accounts, permissions, data, dashboards, APIs into your existing tools.", "Backend et base de données": "Backend and database", "Rôles et permissions": "Roles and permissions", "Exports et intégrations": "Exports and integrations", "Ce qu'on ne fait pas": "What we don't do", "Refonte de marque, production vidéo, campagnes publicitaires, développement sur une stack imposée. On préfère vous le dire tout de suite.": "Brand overhauls, video production, ad campaigns, development on a stack imposed on us. We would rather say so straight away.", "Pas de CMS exotique": "No exotic CMS", "Pas de migration Salesforce": "No Salesforce migration", "Pas d'application mobile native": "No native mobile app", "La garantie deux ans, à 5,99 € par an": "The two-year warranty, at €5.99 a year", "La plupart des sites se dégradent parce que personne ne les regarde après la\n          livraison. La garantie couvre ce qui casse sans que vous y soyez pour quelque\n          chose — mises à jour de sécurité comprises.": "Most sites decay because nobody looks at them after launch. The warranty covers what breaks through no fault of yours — security updates included.", "Ce qui est couvert": "What is covered", "Correction des bugs du code livré": "Fixing bugs in the delivered code", "Mises à jour de sécurité": "Security updates", "Remise en service après incident": "Restoring service after an incident", "Compatibilité navigateurs": "Browser compatibility", "Restauration depuis sauvegarde": "Restore from backup", "Ce qui n'est pas couvert": "What is not covered", "Nouvelles fonctionnalités": "New features", "Refonte du design": "Design overhaul", "Modifications faites par un tiers": "Changes made by a third party", "Frais d'hébergement et de domaine": "Hosting and domain fees", "Production de contenu": "Content production", "Garantie Cre8": "Cre8 warranty", "par an, pendant 2 ans": "per year, for 2 years", "Durée": "Term", "24 mois": "24 months", "Prise en charge": "Response time", "2 jours ouvrés": "2 working days", "Souscription": "Signed up", "à la commande": "at order", "Renouvelable": "Renewable", "oui": "yes", "Quatorze jours, quatre étapes": "Fourteen days, four steps", "Le cycle est le même pour tout le monde. C'est ce qui permet de tenir les prix.": "The cycle is the same for everyone. That is what keeps prices down.", "Vous configurez": "You configure", "Vous cochez vos options ici et vous envoyez. Pas de rendez-vous préalable, pas d'appel de qualification.": "You tick your options here and send. No preliminary meeting, no qualification call.", "Jour 0": "Day 0", "On confirme": "We confirm", "On vérifie que votre projet tient dans le cadre, on envoie un devis ferme et la liste des contenus à fournir.": "We check that your project fits the scope, send a firm quote and the list of content to provide.", "Jour 1 à 2": "Day 1 to 2", "On construit": "We build", "Développement sur une adresse de test. Deux tours de retours inclus, à des moments fixés.": "Development on a test address. Two revision rounds included, at set points.", "Jour 3 à 12": "Day 3 to 12", "On livre": "We deliver", "Mise en ligne, transfert des accès, documentation. Le dépôt de code est à votre nom.": "Launch, handover of all accounts, documentation. The code repository is in your name.", "Jour 13 à 14": "Day 13 to 14", "Ce qu'on nous demande le plus": "What we get asked most", "390 €, c'est vraiment le prix ?": "€390, is that really the price?", "Oui, pour une page sur notre socle, avec vos contenus, mise en ligne. C'est un site simple mais complet et réellement à vous. La plupart des clients dépassent ce montant parce qu'ils prennent des options — mais personne n'y est obligé, et rien ne s'ajoute sans que vous l'ayez coché.": "Yes, for one page on our foundation, with your content, published. It is a simple but complete site that genuinely belongs to you. Most clients go above that figure because they take options — but nobody has to, and nothing is added unless you ticked it.", "Et si je n'ai pas mes textes ?": "What if I don't have my text?", "Deux possibilités. Vous prenez l'option rédaction à 60 € la page : nous écrivons à partir d'un entretien de trente minutes. Ou vous fournissez vos textes vous-même, et vous vous engagez alors à nous les remettre dans les 3 jours ouvrés suivant la validation du dossier. C'est ce qui permet de tenir le cycle de quatorze jours : au-delà, le planning est décalé du retard constaté.": "Two options. You take the copywriting option at €60 per page: we write it from a thirty-minute interview. Or you supply your own text, and you then agree to send it to us within 3 working days of the file being approved. That is what makes the fourteen-day cycle possible: beyond that, the schedule shifts by the delay.", "Où est le piège ?": "Where's the catch?", "Il n'y en a pas, il y a un cadre. Le prix bas repose sur une stack unique, un cycle de 14 jours et deux tours de retours. Si votre projet demande une autre technologie, dix allers-retours ou un design entièrement original, on sort du modèle et on vous fait un devis classique — plus cher, et annoncé comme tel.": "There isn't one, there is a scope. The low price rests on a single stack, a 14-day cycle and two revision rounds. If your project needs another technology, ten rounds of back-and-forth or a fully original design, we step outside the model and write you a conventional quote — more expensive, and announced as such.", "À qui appartient le site ?": "Who owns the site?", "À vous, dès la livraison, sans supplément. Code, domaine, hébergement et comptes tiers sont à votre nom. Faire payer la récupération de son propre code serait le genre de frais caché qu'on refuse de pratiquer.": "You do, from delivery, at no extra cost. Code, domain, hosting and third-party accounts are in your name. Charging you to get your own code back would be exactly the kind of hidden fee we refuse to charge.", "L'hébergement est-il obligatoire chez vous ?": "Do I have to host with you?", "Non. Vous pouvez héberger où vous voulez, on vous livre le nécessaire. L'hébergement géré est une option de confort : sauvegardes, surveillance et mises à jour faites par nous.": "No. You can host wherever you like, we hand over everything you need. Managed hosting is a convenience option: backups, monitoring and updates handled by us.", "Que se passe-t-il si je veux un troisième tour de retours ?": "What if I want a third revision round?", "Il est facturé au prix affiché dans le configurateur. Ce n'est pas une pénalité : c'est le mécanisme qui permet de ne pas faire payer aux clients rapides le temps passé sur les projets qui traînent.": "It is billed at the price shown in the configurator. It is not a penalty: it is the mechanism that stops fast clients paying for time spent on projects that drag.", "Pourquoi « collectif » et pas « agence » ?": "Why “collective” and not “agency”?", "Parce que Cre8 réunit des indépendants de Qlicklab qui se composent en équipe selon le projet. Pas de bureaux, pas de direction commerciale, pas de structure à financer. C'est une des raisons du prix.": "Because Cre8 brings together independents from Qlicklab who form a team to fit each project. No offices, no sales management, no overhead to fund. That is one of the reasons for the price.", "Envoyez votre configuration": "Send us your configuration", "Votre sélection est reprise automatiquement ci-contre. On vérifie, on confirme le prix ferme, et on démarre. Réponse sous 48 heures ouvrées.": "Your selection is carried over automatically on the right. We check it, confirm the firm price, and start. Reply within 48 working hours.", "Une question avant de commander ?": "A question before ordering?", "Vos informations servent uniquement à répondre à votre demande.": "Your details are used only to answer your enquiry.", "Nom et prénom": "Full name", "Société": "Company", "(facultatif)": "(optional)", "E-mail": "Email", "Téléphone": "Phone", "Votre configuration": "Your configuration", "Ce que le site doit vous permettre de faire": "What the site needs to let you do", "Envoyer ma demande": "Send my enquiry", "Réponse sous 48 h ouvrées": "Reply within 48 working hours", "hors TVA, une fois": "excl. VAT, one-off", "Envoyer": "Send", "Questions": "Questions", "Contact": "Contact", "Qlicklab Collective — Cre8.": "Qlicklab Collective — Cre8.", "Mentions légales · Confidentialité · Conditions générales · TVA BE 0000.000.000": "Legal notices · Privacy · Terms · VAT BE 0000.000.000", "Camille Vandenberghe": "Camille Vandenberghe", "camille@monentreprise.be": "camille@yourcompany.be", "Ex. : prendre des rendez-vous en ligne et arrêter de gérer l'agenda par téléphone.": "E.g. take bookings online and stop managing the diary by phone.", "5 étoiles sur 5": "5 stars out of 5", "4 étoiles sur 5": "4 stars out of 5", "Navigation principale": "Main navigation", "Ouvrir le menu": "Open menu", "Cre8, accueil": "Cre8, home", "Nom de domaine": "Domain name", "Hébergement géré": "Managed hosting", "Adresses e-mail pro": "Professional email addresses", "Page supplémentaire": "Extra page", "Rédaction des textes": "Copywriting", "Banque d'images": "Stock photography", "Langue supplémentaire": "Extra language", "Formulaire de contact": "Contact form", "Moteur de réservation": "Booking engine", "Boutique en ligne": "Online shop", "Paiement en ligne": "Online payment", "Comptes utilisateurs": "User accounts", "SEO de départ": "Starter SEO", "Suivi SEO mensuel": "Monthly SEO monitoring", "Statistiques sans cookies": "Cookie-free analytics", "Design original": "Original design", "Tour de retours en plus": "Extra revision round", "Formation de votre équipe": "Team training", "Livraison express": "Express delivery", "page": "page", "pages": "pages", "unique": "one-off", "mois": "month", "an": "year", "Achat ou transfert, configuration DNS, certificat HTTPS. Le domaine est enregistré à votre nom.": "Registration and configuration of your .be, .eu or .com for one year, in your name.", "Serveur, sauvegardes quotidiennes, surveillance et mises à jour. Sans ça, vous hébergez où vous voulez.": "Server, HTTPS, daily backups and uptime monitoring. Cancellable at any time.", "Boîtes à votre nom de domaine, avec SPF et DKIM pour ne pas tomber en spam.": "Addresses at your domain, with anti-spam setup so your messages reach the inbox.", "Chaque page en plus de la page d'accueil : services, à propos, réalisations, contact.": "Each page beyond the homepage: services, about, portfolio, contact.", "On écrit à votre place, à partir d'un entretien de 30 minutes. Sinon, vous fournissez vos textes.": "We write it for you, from a thirty-minute interview. Otherwise, you supply your own text.", "Sélection et licence d'images professionnelles cohérentes avec votre secteur.": "Licensed images selected for your business. Otherwise, you supply your own photos.", "Duplication de la structure et intégration de vos traductions. La traduction elle-même n'est pas incluse.": "A full translated version of the site, with a language switcher.", "Formulaire avec anti-spam et envoi vers votre boîte mail.": "Form with anti-spam protection, sending straight to your inbox.", "Créneaux, ressources, confirmations et rappels automatiques, synchronisation agenda.": "Slots, availability, confirmation emails and automatic reminders.", "Catalogue, panier, stocks, TVA, transporteurs et e-mails de commande.": "Catalogue, cart, stock and order emails. Transaction fees stay with the provider.", "Bancontact, carte et virement via Stripe ou Mollie. Les frais de transaction restent ceux du prestataire.": "Bancontact, card and transfer via Stripe or Mollie. Transaction fees stay with the provider.", "Inscription, connexion, rôles et espace privé. Nécessaire pour une application métier.": "Sign-up, login and a private area for your customers or your team.", "Structure sémantique, métadonnées, plan de site, fiche Google Business et suivi Search Console.": "Titles, meta descriptions, sitemap, structured data and Google Business listing.", "Rapport de positions, corrections techniques et une recommandation de contenu par mois.": "Position report, technical fixes and one content recommendation per month.", "Mesure d'audience respectueuse du RGPD, sans bandeau de consentement à afficher.": "Traffic measurement without a consent banner, since no personal data is stored.", "Maquette dessinée pour vous au lieu de la personnalisation de notre socle. C'est ce qui vous fait sortir du modèle standard.": "A layout drawn for you instead of our standard foundation. Adds to the build time.", "Deux tours sont inclus. Au-delà, chaque cycle de corrections est facturé.": "Beyond the two included rounds. Billed per round, at the price shown here.", "Une heure en visio, enregistrée, pour apprendre à modifier vos contenus vous-même.": "One hour on video, recorded, to learn how to edit your content yourself.", "Bugs, sécurité et remise en service couverts pendant 24 mois.": "Bug fixes, security updates and restore from backup for two years.", "Votre projet passe en tête de file. Le délai est divisé par deux, le total majoré de 40 %.": "Your project moves to the front of the queue. Cycle cut to seven working days.", "Trois questions, et on précoche pour vous": "Three questions, and we tick the boxes for you", "Chaque secteur a ses besoins réels et ses fausses bonnes idées. Répondez, on présélectionne ce qui sert vraiment dans le vôtre — vous restez libre de tout décocher.": "Every sector has its real needs and its false good ideas. Answer, and we preselect what actually works in yours — you stay free to untick everything.", "Votre activité": "Your business", "Artisan, bâtiment": "Trades, construction", "Restaurant, café, traiteur": "Restaurant, café, catering", "Santé, bien-être": "Health, wellbeing", "Commerce, produits": "Retail, products", "Conseil, profession libérale": "Consulting, professional services", "Immobilier": "Real estate", "ASBL, association": "Non-profit, association", "Autre": "Other", "Ce que le site doit d'abord produire": "What the site must deliver first", "Être trouvé localement": "Get found locally", "Remplir un agenda": "Fill a diary", "Vendre en ligne": "Sell online", "Rassurer avant un rendez-vous": "Build trust before a meeting", "Vos textes et vos photos": "Your text and photos", "J'ai tout": "I have everything", "Photos oui, textes non": "Photos yes, text no", "Je n'ai rien": "I have nothing", "Voir ma sélection": "See my selection", "Passer, je configure moi-même": "Skip, I'll configure it myself", "Modifier mes réponses": "Change my answers", "Recommandé": "Recommended", "J'ai mes textes et photos": "I have my text and photos", "Je n'ai ni textes ni photos": "I have neither text nor photos", "Autre activité": "Other business", "Ce qui fait signer un devis dans le bâtiment": "What gets a quote signed in construction", "Ce que vos clients cherchent avant de pousser la porte": "What customers look for before walking in", "Arrêter de gérer l'agenda au téléphone": "Stop managing the diary by phone", "Vendre sans reverser 20 % à une marketplace": "Sell without handing 20% to a marketplace", "Le site est lu après le premier contact, pas avant": "The site gets read after first contact, not before", "Capter les mandats, pas seulement les acheteurs": "Win listings, not just buyers", "Un site que vos bénévoles pourront tenir": "A site your volunteers can maintain", "La sélection de départ, la plus fréquente": "The starting selection, the most common one", "Voir ma sélection et mon prix": "See my selection and my price", "Passer, je configure sans profil": "Skip, configure without a profile", "Chaque secteur a ses besoins réels et ses fausses bonnes idées. Répondez, et on vous emmène sur une page de configuration où tout est déjà précoché pour votre métier — vous restez libre de tout décocher.": "Every sector has its real needs and its false good ideas. Answer, and we take you to a configuration page where everything is already ticked for your trade — you stay free to untick it all.", "Espace client": "Client portal", "Suivi du projet en temps réel": "Real-time project tracking", "Vous suivez votre projet en direct, de A à Z": "You follow your project live, from A to Z", "Dès la commande, vous recevez l'accès à votre espace client. Vous y voyez où en est le projet, ce qu'on attend de vous, et vous parlez à l'équipe qui construit votre site — sans chaîne d'e-mails ni rendez-vous à caler.": "From the moment you order, you get access to your client portal. You see where the project stands, what we need from you, and you talk to the team building your site — no email chains, no meetings to schedule.", "L'avancement, à la minute": "Progress, to the minute", "Chaque étape passe au vert quand elle est terminée. Vous savez toujours ce qui se fait aujourd'hui.": "Each step turns green as it completes. You always know what is being done today.", "Vos retours au bon endroit": "Your feedback where it belongs", "Vous commentez directement sur la maquette. Plus de corrections perdues dans un fil de discussion.": "You comment straight onto the mockup. No more fixes lost in a message thread.", "Une équipe qui répond": "A team that answers", "Vous écrivez aux personnes qui développent, pas à un service intermédiaire.": "You write to the people doing the building, not to a middle layer.", "Tout au même endroit": "Everything in one place", "Devis, contenus à fournir, accès, factures et documentation. Rien à chercher dans vos mails.": "Quote, content to supply, credentials, invoices and documentation. Nothing to dig out of your inbox.", "Dans le bâtiment, nos projets vont de <b>390 €</b> pour une page unique à <b>1 400 €</b> pour un site complet avec réalisations. Vous choisissez où vous vous placez.": "In construction, our projects run from <b>€390</b> for a single page to <b>€1,400</b> for a full site with a portfolio. You choose where you sit.", "Toutes activités confondues, nos projets vont de <b>390 €</b> à <b>2 800 €</b>. La moitié se situe sous 900 €.": "Across all sectors, our projects run from <b>€390</b> to <b>€2,800</b>. Half of them come in under €900.", "Une question avant de vous lancer ?": "A question before you start?", "Pour commander, passez par le configurateur : vous y voyez le prix et vous envoyez votre sélection. Ce formulaire-ci est pour tout le reste — un projet qui sort du cadre, une reprise de site existant, ou simplement un doute.": "To order, go through the configurator: you see the price there and send your selection. This form is for everything else — a project outside the scope, taking over an existing site, or simply a doubt.", "Vous préférez parler ?": "Prefer to talk?", "Aller au configurateur": "Go to the configurator", "Votre question": "Your question", "Envoyer ma question": "Send my question", "Dès 390 €": "From €390", "livré en 14 jours": "delivered in 14 days", "Mon prix": "My price", "Nos deux services": "Our two services", "Deux façons d'avoir un site chez nous": "Two ways to get a site from us", "La même équipe, le même socle technique, la même garantie. Ce qui change, c'est le temps de conception — et donc le prix.": "Same team, same technical foundation, same warranty. What changes is the design time — and therefore the price.", "Service 1 — Le catalogue": "Service 1 — The catalogue", "Vous choisissez un style déjà construit": "You pick a style that's already built", "dès 249 €": "from €249", "dès 390 €": "from €390", "Livré en 5 jours ouvrés": "Delivered in 5 working days", "Livré en 14 jours ouvrés": "Delivered in 14 working days", "Huit styles finis, un par type d'activité. On les habille de votre logo, vos couleurs, vos textes et vos photos. La conception est déjà payée, vous ne payez que l'habillage.": "Eight finished styles, one per type of business. We dress them in your logo, colours, text and photos. The design is already paid for; you pay only for the fitting.", "Pour se rendre visible vite, sans vente ni réservation en ligne": "To get visible fast, with no online sales or bookings", "Structure fixe : on ne déplace pas les blocs": "Fixed structure: we don't move the blocks", "Un tour de corrections": "One round of corrections", "Voir les 8 styles": "See the 8 styles", "Service 2 — Le sur-mesure": "Service 2 — Custom build", "Vous composez le vôtre, ligne par ligne": "You build yours, line by line", "Vingt options à prix affichés. Boutique, réservation, comptes utilisateurs, langues, design original : vous ajoutez ce dont vous avez besoin et le total s'affiche pendant que vous cochez.": "Twenty options at listed prices. Shop, bookings, user accounts, languages, original design: you add what you need and the total updates as you tick.", "Pour vendre, réserver ou faire tourner un outil métier": "To sell, take bookings or run a business tool", "Structure et design adaptés à votre activité": "Structure and design fitted to your business", "Deux tours de corrections": "Two rounds of corrections", "Composer mon site": "Build my site", "Catalogue ou sur-mesure ? Répondez, on vous oriente": "Catalogue or custom? Answer, and we'll point you", "Le mauvais service coûte cher des deux côtés : un catalogue qu'il faut forcer, ou un sur-mesure payé pour des fonctions inutilisées. Ces quatre questions tranchent.": "The wrong service costs you either way: a catalogue you have to force, or a custom build paid for features you never use. These four questions settle it.", "Quatre questions, et on vous dit lequel de nos deux services vous convient": "Four questions, and we tell you which of our two services fits", "Le catalogue va vite et coûte peu, le sur-mesure fait tout. La plupart des gens se trompent de porte : ces questions évitent ça en trente secondes.": "The catalogue is fast and cheap, the custom build does everything. Most people pick the wrong door: these questions prevent that in thirty seconds.", "Ce que votre site doit faire": "What your site must do", "Présenter mon activité": "Present my business", "Prendre des rendez-vous": "Take appointments", "Être un outil de travail": "Be a working tool", "Votre budget de départ": "Your starting budget", "Moins de 400 €": "Under €400", "400 à 1 000 €": "€400 to €1,000", "Plus de 1 000 €": "Over €1,000", "Je ne sais pas encore": "I don't know yet", "Quel service pour moi ?": "Which service suits me?", "Je sais déjà, voir les deux": "I already know, show me both", "Notre recommandation": "Our recommendation", "Le catalogue, à partir de 249 €": "The catalogue, from €249", "Le sur-mesure, à partir de 390 €": "The custom build, from €390", "Voir les styles pour mon activité": "See the styles for my business", "Voir quand même le sur-mesure": "Show me the custom build anyway", "Voir quand même le catalogue": "Show me the catalogue anyway", "Refaire le test": "Take it again", "Continuer": "Continue", "Voir l'autre service": "See the other service", "Dès 249 €": "From €249", "catalogue, livré en 5 j": "catalogue, delivered in 5 days", "Découvrir nos offres": "See our offers", "Comparer les deux services": "Compare the two services", "Nos offres": "Our offers", "Vous hésitez ?": "Not sure?", "Répondez à quatre questions": "Answer four questions", "et on vous dit lequel des deux vous convient.": "and we'll tell you which of the two fits.", "Notre méthode": "Our method", "Garanties": "Guarantees", "Trouver mon service": "Find my service", "Quatre questions, on vous oriente": "Four questions, we point you", "Comparer les deux": "Compare the two", "Catalogue et sur-mesure côte à côte": "Catalogue and custom, side by side", "Le catalogue": "The catalogue", "8 styles prêts, dès 249 €": "8 ready styles, from €249", "Le sur-mesure": "The custom build", "20 options, dès 390 €": "20 options, from €390", "D'où vient le prix bas": "Where the low price comes from", "Le périmètre, et ce qui en sort": "The scope, and what falls outside", "Suivre son projet en direct": "Follow your project live", "5,99 € par an, ce qu'elle couvre": "€5.99 a year, what it covers", "RGPD, hébergement européen": "GDPR, European hosting", "Avis clients": "Customer reviews", "4,9 sur 5, 27 projets": "4.9 out of 5, 27 projects", "Questions fréquentes": "Frequently asked", "Les six qu'on nous pose": "The six we get asked", "Fermer": "Close", "Le catalogue — huit styles déjà construits": "The catalogue — eight styles already built", "Le sur-mesure — vingt options à prix affichés": "The custom build — twenty options at listed prices", "Un site prêt à partir de": "A ready-made site from", ". En ligne en 5 jours.": ". Online in 5 days.", "Un site sur mesure à partir de": "A custom site from", "Huit styles déjà construits. On les habille de votre logo, de vos couleurs et de vos textes — la conception est déjà payée, vous ne payez que l'habillage.": "Eight styles already built. We dress them in your logo, colours and text — the design is already paid for, you pay only for the fitting.", "Prix ferme, tout compris": "Firm price, all included", "Exemple — style Atelier, 3 pages": "Example — Atelier style, 3 pages", "Style « Atelier » — 3 pages": "“Atelier” style — 3 pages", "Habillage à vos couleurs": "Fitted to your colours", "Domaine et mise en ligne": "Domain and go-live", "compris": "included", "Livré en 5 jours": "Delivered in 5 days", "Catalogue": "Catalogue", "Sur-mesure": "Custom build", "Nos deux offres": "Our two offers", "Ils travaillent avec nous": "They work with us", "Prestataires, agences et indépendants avec qui nous montons les projets qui sortent de notre cadre.": "Providers, agencies and freelancers we build with when a project falls outside our scope.", "Logos de démonstration, à remplacer par vos partenaires réels.": "Placeholder logos, to be replaced by your real partners.", "4,9 sur 5": "4.9 out of 5", "— 27 projets livrés": "— 27 projects delivered", "Compte": "Account", "Panier": "Cart", "Ajouter au panier": "Add to cart", "Commander sans compte": "Order without an account", "Une adresse à vous, que vos clients retiennent et tapent directement. Elle vous appartient : vous pouvez changer de prestataire sans rien perdre.": "An address that is yours, easy to remember and to dictate. You own it, so you can change provider without losing anything.", "Votre site vit sur une adresse technique impossible à dicter au téléphone, et vous repartez de zéro en référencement le jour où vous changez d'hébergeur.": "Your site lives on a technical address nobody can read out over the phone, and you start SEO from zero the day you switch host.", "Sauvegardes quotidiennes, mises à jour de sécurité et surveillance. Si le site tombe, on le voit avant vos clients.": "Daily backups, security updates and monitoring. If the site goes down, we see it before your customers do.", "Vous gérez vous-même serveur, certificat et sauvegardes. Une panne un vendredi soir reste en panne jusqu'à ce que quelqu'un s'en aperçoive.": "You manage the server, certificate and backups yourself. An outage on a Friday evening stays down until someone notices.", "Écrire depuis contact@votredomaine plutôt qu'une adresse gratuite. Configuration anti-spam incluse, vos devis arrivent en boîte de réception.": "Writing from contact@yourdomain instead of a free address. Anti-spam setup included, so your quotes reach the inbox.", "Vos messages professionnels partent d'une adresse Gmail ou Hotmail, et une partie tombe en courrier indésirable chez vos prospects.": "Your business email goes out from a Gmail or Hotmail address, and part of it lands in your prospects' spam folder.", "Chaque page traite un besoin et se positionne sur ses propres recherches Google. C'est le levier de visibilité le plus rentable du catalogue.": "Each page answers one need and ranks on its own searches. It is the best value visibility lever in the catalogue.", "Tout tient sur une page : le visiteur ne trouve pas la réponse à sa question précise, et Google n'a qu'une seule porte d'entrée vers vous.": "Everything sits on one page: visitors can't find the answer to their specific question, and Google has only one door into your business.", "Des textes écrits pour convaincre et pour être trouvés, à partir d'un entretien de trente minutes. Vous ne bloquez pas le projet.": "Text written to convince and to be found, from a thirty-minute interview. You don't hold up the project.", "Vous devez fournir vos textes sous 3 jours ouvrés. C'est la première cause de retard : un site prêt qui attend des mots pendant six semaines.": "You must supply your text within 3 working days. It is the number one cause of delay: a finished site waiting six weeks for words.", "Des visuels cohérents et sous licence. Sur un site, la qualité des images pèse plus lourd sur la confiance que le design lui-même.": "Consistent, licensed visuals. On a website, image quality affects trust more than the design itself.", "Le site s'affiche avec vos photos de téléphone ou des blocs vides. C'est visible immédiatement, et ça se paie en crédibilité.": "The site launches with phone snapshots or empty blocks. It shows instantly, and it costs you credibility.", "Vous vous adressez aussi aux néerlandophones ou aux anglophones. Dans plusieurs régions belges, c'est la moitié du marché.": "You also speak to Dutch or English speakers. In several Belgian regions that is half the market.", "Une part de vos prospects arrive sur un site qu'ils ne lisent pas et repart chez un concurrent bilingue.": "Part of your prospects land on a site they can't read and leave for a bilingual competitor.", "Le visiteur vous écrit sans ouvrir sa boîte mail. Le taux de contact est nettement supérieur à une simple adresse affichée.": "Visitors write to you without opening their mail client. The contact rate is far higher than with a plain address on screen.", "Il faut copier votre adresse, ouvrir sa messagerie, écrire. Beaucoup abandonnent en route, et vous ne le saurez jamais.": "They have to copy your address, open their inbox, write. Many give up on the way, and you will never know.", "Vos clients réservent seuls, jour et nuit. Les rappels automatiques réduisent fortement les rendez-vous non honorés.": "Customers book by themselves, day and night. Automatic reminders sharply cut no-shows.", "Vous continuez à prendre les rendez-vous au téléphone, pendant vos heures de travail, avec les oublis et les créneaux perdus que ça implique.": "You keep taking bookings by phone, during working hours, with the missed calls and empty slots that come with it.", "Vous vendez directement, sans commission par commande. Catalogue, stock et e-mails de confirmation compris.": "You sell directly, with no commission per order. Catalogue, stock and confirmation emails included.", "Vous vendez via une marketplace qui prélève sur chaque vente, ou par téléphone et messages, avec la saisie manuelle en prime.": "You sell through a marketplace that takes a cut of every sale, or by phone and messages, with manual entry on top.", "Le client paie immédiatement, par Bancontact ou carte. Encaissé avant même que vous ayez ouvert votre ordinateur.": "The customer pays immediately, by Bancontact or card. Collected before you have even opened your laptop.", "Vous facturez après coup et vous relancez. Les délais de paiement s'allongent, et une partie des paniers ne se transforme jamais.": "You invoice afterwards and chase. Payment times stretch, and some carts never convert at all.", "Un espace privé pour vos clients ou votre équipe : documents, suivi, historique. C'est ce qui transforme un site en outil de travail.": "A private area for your customers or your team: documents, tracking, history. That is what turns a site into a working tool.", "Tout passe par e-mail et pièces jointes. Personne ne sait quelle est la dernière version d'un document.": "Everything goes through email and attachments. Nobody knows which version of a document is the latest.", "Structure, métadonnées et fiche Google Business en place dès le lancement. C'est ce qui vous fait apparaître sur les recherches locales.": "Structure, metadata and Google Business listing in place at launch. That is what puts you in local search results.", "Le site existe mais reste invisible : sans travail de départ, il faut souvent des mois avant d'apparaître sur votre propre nom de métier.": "The site exists but stays invisible: without groundwork it often takes months to appear even under your own trade name.", "Un rapport de positions et une correction par mois. Le référencement se dégrade sans entretien, comme le reste.": "A position report and one fix per month. Search rankings decay without upkeep, like everything else.", "Vos positions s'érodent en silence pendant que vos concurrents publient. On s'en aperçoit généralement un an trop tard.": "Your positions erode quietly while competitors publish. People usually notice a year too late.", "Vous savez d'où viennent vos visiteurs et quelles pages fonctionnent, sans bandeau de cookies à afficher.": "You see where visitors come from and which pages work, with no cookie banner to display.", "Vous pilotez à l'aveugle : impossible de savoir si votre site rapporte quoi que ce soit, ni quelle page fait fuir les visiteurs.": "You fly blind: no way to know whether the site earns anything, or which page drives visitors away.", "Une maquette dessinée pour vous. Utile quand vous êtes sur un marché encombré où tous les sites se ressemblent.": "A layout drawn for you. Worth it in a crowded market where every site looks the same.", "Vous restez sur notre socle personnalisé à vos couleurs. Propre et rapide, mais proche visuellement d'autres sites que nous livrons.": "You stay on our foundation, styled in your colours. Clean and fast, but visually close to other sites we deliver.", "Un cycle de corrections supplémentaire, à prix annoncé, si vous savez que les validations passeront par plusieurs personnes.": "One more correction cycle, at an announced price, if you know approvals will pass through several people.", "Au-delà des deux tours inclus, chaque série de corrections est facturée à ce même prix. Rien n'est bloqué, mais le budget bouge.": "Beyond the two included rounds, each set of corrections is billed at this same price. Nothing is blocked, but the budget moves.", "Une heure enregistrée pour modifier vos contenus vous-même. Vous cessez de payer une intervention pour changer un horaire.": "One recorded hour so you can edit your own content. You stop paying for a call-out to change an opening time.", "Chaque modification passe par nous. Ce n'est pas cher à l'unité, mais ça finit par coûter plus qu'une formation.": "Every change goes through us. It is cheap per change, but it ends up costing more than the training.", "Bugs, sécurité et remise en service couverts pendant deux ans, pour le prix d'un café par an. C'est l'option la plus rentable du catalogue.": "Bugs, security and service restoration covered for two years, for the price of one coffee a year. The best value option in the catalogue.", "Toute panne ou faille après la livraison est une intervention facturée. Un incident suffit à dépasser cent fois le prix de la garantie.": "Any fault or vulnerability after delivery is a billable job. One incident is enough to exceed the warranty price a hundred times over.", "Votre projet passe en tête de file et le délai est divisé par deux. Utile si vous avez une ouverture ou un salon à une date fixe.": "Your project jumps the queue and the lead time is halved. Useful if you have an opening or a trade show on a fixed date.", "Vous êtes livré dans le cycle normal de quatorze jours. Aucun risque, sauf si vous avez une échéance qui ne bouge pas.": "You are delivered on the normal fourteen-day cycle. No risk, unless you have a deadline that will not move."};
+  var LEX_INV = {}; Object.keys(LEX).forEach(function (k) { LEX_INV[LEX[k]] = k; });
+  var langue = 'fr';
+  var euro = function (n) { return n.toLocaleString('fr-BE', { maximumFractionDigits: 0 }) + ' €'; };
+
+  /* ---------- catalogue ---------- */
+  var STYLES = [
+    { id:'atelier', nom:'Atelier', prix:299, pages:4, jours:5, cat:['artisan'],
+      pour:"Artisans et entreprises du bâtiment qui veulent montrer leurs chantiers.",
+      meta:['4 pages','Fiches de chantier','Demande de devis'],
+      pal:['#111418','#F5F2EC','#D08A3C'], vue:'chantier', apercu:'modele-atelier.html' },
+    { id:'table', nom:'Table', prix:299, pages:3, jours:5, cat:['horeca'],
+      pour:"Restaurants, cafés et traiteurs. La carte, les horaires, l'adresse.",
+      meta:['3 pages','Carte intégrée','Téléphone cliquable'],
+      pal:['#1A1410','#FAF6EF','#B4442C'], vue:'carte' },
+    { id:'cabinet', nom:'Cabinet', prix:349, pages:4, jours:5, cat:['sante','conseil'],
+      pour:"Praticiens et professions libérales. Sobre, rassurant, lisible.",
+      meta:['4 pages','Soins et tarifs','Horaires et accès'],
+      pal:['#0E1F2B','#F2F6F8','#2E7D9A'], vue:'liste', apercu:'modele-cabinet.html' },
+    { id:'devanture', nom:'Devanture', prix:299, pages:4, jours:5, cat:['commerce'],
+      pour:"Commerces de proximité qui vendent en boutique, pas en ligne.",
+      meta:['4 pages','Vitrine produits','Plan et horaires'],
+      pal:['#161616','#FFFFFF','#3B5BDB'], vue:'grille', apercu:'modele-devanture.html' },
+    { id:'studio', nom:'Studio', prix:349, pages:4, jours:5, cat:['conseil','commerce'],
+      pour:"Métiers visuels : photographes, décorateurs, paysagistes.",
+      meta:['4 pages','Portfolio pleine largeur','Contact direct'],
+      pal:['#0B0B0C','#EDEDEF','#C9A227'], vue:'photo' },
+    { id:'bureau', nom:'Bureau', prix:349, pages:4, jours:5, cat:['conseil'],
+      pour:"Consultants, comptables, avocats. Le sérieux avant l'effet.",
+      meta:['4 pages','Page équipe','Prise de contact'],
+      pal:['#11172A','#F4F5F9','#4A5CC7'], vue:'colonnes' },
+    { id:'collectif', nom:'Collectif', prix:299, pages:4, jours:5, cat:['asbl'],
+      pour:"ASBL et associations. Actions, agenda, appel aux bénévoles.",
+      meta:['4 pages','Agenda des activités','Formulaire bénévoles'],
+      pal:['#12261C','#F3F7F2','#2F8F5B'], vue:'agenda' },
+    { id:'depart', nom:'Départ', prix:249, pages:1, jours:5, cat:['artisan','commerce','conseil','asbl','sante','horeca'],
+      pour:"Une seule page, tout y est. Le premier site, ou une activité qui démarre.",
+      meta:['1 page','Tout sur un écran','Le prix plancher'],
+      pal:['#0A0A0F','#FFFFFF','#313EFF'], vue:'unique' }
+  ];
+
+  function apercu(s) {
+    var f = s.pal[0], p = s.pal[1], a = s.pal[2];
+    var t = { chantier:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>ATELIER</span><i><span>Réalisations</span><span>Devis</span></i></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:13px">Le bois,<br>bien posé.</div>'+
+        '<div class="ap__l" style="background:'+f+'"></div><div class="ap__l" style="background:'+f+';width:60%"></div>'+
+        '<div class="ap__bloc" style="background:'+a+'"></div>'+
+        '<div class="ap__row ap__row--3"><div class="ap__case" style="background:'+f+'22"></div><div class="ap__case" style="background:'+f+'22"></div><div class="ap__case" style="background:'+f+'22"></div></div>',
+      carte:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>TABLE</span><i><span>Carte</span><span>Réserver</span></i></div>'+
+        '<div class="ap__h1" style="color:'+a+';font-size:12px">Cuisine du marché</div>'+
+        '<div style="color:'+f+'"><div class="ap__li"><span>Entrées</span><span>12 €</span></div><div class="ap__li"><span>Plats</span><span>22 €</span></div><div class="ap__li"><span>Desserts</span><span>9 €</span></div></div>'+
+        '<div class="ap__bloc" style="background:'+f+';margin-top:5px"></div>',
+      liste:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>CABINET</span><i><span>Soins</span><span>Accès</span></i></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:11px">Kinésithérapie<br>et rééducation</div>'+
+        '<div class="ap__l" style="background:'+f+'"></div><div class="ap__l" style="background:'+f+';width:72%"></div>'+
+        '<div class="ap__row ap__row--2" style="margin-top:7px"><div class="ap__case" style="background:'+a+'33;min-height:26px"></div><div class="ap__case" style="background:'+a+'33;min-height:26px"></div></div>'+
+        '<span class="ap__pill" style="background:'+a+';color:'+p+';margin-top:6px">Prendre rendez-vous</span>',
+      grille:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>DEVANTURE</span><i><span>Boutique</span><span>Plan</span></i></div>'+
+        '<div class="ap__row ap__row--2"><div class="ap__case" style="background:'+a+';min-height:30px"></div><div class="ap__case" style="background:'+f+'1a;min-height:30px"></div></div>'+
+        '<div class="ap__row ap__row--3" style="margin-top:4px"><div class="ap__case" style="background:'+f+'1a"></div><div class="ap__case" style="background:'+f+'1a"></div><div class="ap__case" style="background:'+f+'1a"></div></div>'+
+        '<div class="ap__l" style="background:'+f+';margin-top:7px"></div><div class="ap__l" style="background:'+f+';width:55%"></div>',
+      photo:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>STUDIO</span><i><span>Travaux</span><span>Contact</span></i></div>'+
+        '<div class="ap__bloc" style="background:'+f+';min-height:38px"></div>'+
+        '<div class="ap__row ap__row--3" style="margin-top:5px"><div class="ap__case" style="background:'+a+'"></div><div class="ap__case" style="background:'+f+'22"></div><div class="ap__case" style="background:'+f+'22"></div></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:9px;margin-top:7px">Portfolio 2026</div>',
+      colonnes:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>BUREAU</span><i><span>Expertises</span><span>Équipe</span></i></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:11px">Conseil fiscal<br>et social</div>'+
+        '<div class="ap__row ap__row--2" style="margin-top:6px"><div><div class="ap__l" style="background:'+f+'"></div><div class="ap__l" style="background:'+f+'"></div><div class="ap__l" style="background:'+f+';width:70%"></div></div><div class="ap__case" style="background:'+a+';min-height:30px"></div></div>'+
+        '<span class="ap__pill" style="background:'+f+';color:'+p+';margin-top:7px">Nous écrire</span>',
+      agenda:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>COLLECTIF</span><i><span>Actions</span><span>Agenda</span></i></div>'+
+        '<div class="ap__h1" style="color:'+a+';font-size:11px">Agir près<br>de chez vous</div>'+
+        '<div style="color:'+f+';margin-top:5px"><div class="ap__li"><span>Atelier réparation</span><span>12/03</span></div><div class="ap__li"><span>Collecte</span><span>19/03</span></div></div>'+
+        '<span class="ap__pill" style="background:'+a+';color:'+p+';margin-top:7px">Devenir bénévole</span>',
+      unique:
+        '<div class="ap__barre" style="color:'+f+';border-bottom:1px solid '+f+'33"><span>DÉPART</span><i><span>Contact</span></i></div>'+
+        '<div class="ap__h1" style="color:'+f+';font-size:14px">Une page,<br>tout dedans.</div>'+
+        '<div class="ap__l" style="background:'+f+'"></div><div class="ap__l" style="background:'+f+';width:64%"></div>'+
+        '<div class="ap__bloc" style="background:'+a+';min-height:22px;margin-top:5px"></div>'+
+        '<span class="ap__pill" style="background:'+f+';color:'+p+';margin-top:6px">Nous appeler</span>'
+    };
+    return '<div class="style__vue" style="background:'+f+'"><div class="style__ecran" style="background:'+p+'">'+t[s.vue]+'</div></div>';
+  }
+
+  var grille = $('#grille');
+  grille.innerHTML = STYLES.map(function (s) {
+    return '<article class="style" data-id="' + s.id + '" data-cat="' + s.cat.join(' ') + '">' +
+      apercu(s) +
+      '<div class="style__corps">' +
+        '<div class="style__nom"><h3>' + s.nom + '</h3><span class="style__prix">' + euro(s.prix) + '</span></div>' +
+        '<p class="style__pour">' + s.pour + '</p>' +
+        '<p class="style__meta">' + s.meta.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</p>' +
+        '<div class="style__actions">' +
+          (s.apercu
+            ? '<a class="bouton bouton--sobre bouton--petit" href="' + s.apercu + '">Voir l\'aperçu</a>'
+            : '<span class="style__bientot">Aperçu bientôt</span>') +
+          '<button type="button" class="bouton bouton--plein" data-panier="' + s.id + '">Ajouter au panier — ' + euro(s.prix) + '</button>' +
+          '<button type="button" class="bouton bouton--sobre bouton--plein bouton--petit" data-choisir="' + s.id + '">Commander sans compte</button>' +
+        '</div>' +
+      '</div></article>';
+  }).join('');
+
+  /* ---------- filtres ---------- */
+  document.querySelectorAll('.filtres button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.filtres button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      var f = b.dataset.f;
+      document.querySelectorAll('.style').forEach(function (c) {
+        c.hidden = !(f === 'tous' || c.dataset.cat.split(' ').indexOf(f) > -1);
+      });
+    });
+  });
+
+  /* ---------- sélection ---------- */
+  var choisi = null;
+  function choisir(id) {
+    choisi = STYLES.filter(function (s) { return s.id === id; })[0];
+    document.querySelectorAll('.style').forEach(function (c) { c.classList.toggle('style--choisi', c.dataset.id === id); });
+    document.querySelectorAll('[data-choisir]').forEach(function (b) {
+      var on = b.dataset.choisir === id;
+      b.textContent = on ? 'Style sélectionné' : 'Choisir ce style';
+      b.classList.toggle('bouton--bleu', on);
+    });
+    $('#panierVide').hidden = true; $('#panierPlein').hidden = false;
+    $('#pNom').textContent = choisi.nom;
+    $('#pPour').textContent = choisi.pour;
+    $('#pPages').textContent = choisi.pages + (choisi.pages > 1 ? ' pages' : ' page');
+    $('#pDelai').textContent = choisi.jours + ' jours ouvrés';
+    $('#pPrix').textContent = euro(choisi.prix);
+    $('#mTotal').textContent = choisi.nom + ' · ' + euro(choisi.prix);
+    $('#mNote').textContent = 'livré en ' + choisi.jours + ' jours';
+    if (langue === 'en') traduire('en');
+  }
+  grille.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-choisir]'); if (!b) return;
+    choisir(b.dataset.choisir);
+    $('#commande').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  var p = new URLSearchParams(location.search);
+  if (p.get('style') && STYLES.some(function (s) { return s.id === p.get('style'); })) choisir(p.get('style'));
+  if (p.get('secteur')) {
+    var b = document.querySelector('.filtres button[data-f="' + p.get('secteur') + '"]');
+    if (b) b.click();
+  }
+
+  /* ---------- formulaire ---------- */
+  var regles = [
+    { id:'nom', err:'err-nom', ok:function (v) { return v.trim().length > 1; } },
+    { id:'email', err:'err-email', ok:function (v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); } },
+    { id:'message', err:'err-message', ok:function (v) { return v.trim().length > 9; } }
+  ];
+  regles.forEach(function (r) {
+    $('#' + r.id).addEventListener('blur', function () { $('#' + r.err).hidden = r.ok(this.value); });
+  });
+  /* ajout au panier depuis la carte de style */
+  document.getElementById('grille').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-panier]');
+    if (!b) return;
+    var s = STYLES.filter(function (x) { return x.id === b.dataset.panier; })[0];
+    if (!s) return;
+    window.Panier.ajouter({
+      t: 'cat', id: s.id, n: 'Style ' + s.nom, p: s.prix, q: 1,
+      s: s.pages + (s.pages > 1 ? ' pages' : ' page') + ' · livré en ' + s.jours + ' jours',
+      det: s.meta.slice(0, 3)
+    });
+  });
+
+  $('#formulaire').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var msg = $('#accuse');
+    if (!choisi) {
+      msg.hidden = false;
+      msg.textContent = langue === 'en' ? 'Pick a style before ordering.' : 'Choisissez un style avant de commander.';
+      $('#styles').scrollIntoView({ behavior: 'smooth' }); return;
+    }
+    var premier = null;
+    regles.forEach(function (r) {
+      var c = $('#' + r.id), ok = r.ok(c.value);
+      $('#' + r.err).hidden = ok;
+      if (!ok && !premier) premier = c;
+    });
+    if (premier) { premier.focus(); msg.hidden = true; return; }
+    if (!$('#consent').checked) {
+      msg.hidden = false;
+      msg.textContent = langue === 'en' ? 'Please confirm your order first.' : 'Confirmez votre commande avant d’envoyer.';
+      $('#consent').focus(); return;
+    }
+    msg.hidden = false;
+    msg.textContent = langue === 'en'
+      ? 'Order sent. We reply within 24 working hours with the list of items to send us.'
+      : 'Commande envoyée. Réponse sous 24 h ouvrées avec la liste des éléments à nous transmettre.';
+    this.reset();
+  });
+
+  /* ---------- langue ---------- */
+  function traduire(vers) {
+    var dico = vers === 'en' ? LEX : LEX_INV;
+    var it = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var pa = n.parentNode;
+        if (!pa || pa.nodeName === 'SCRIPT' || pa.nodeName === 'STYLE') return NodeFilter.FILTER_REJECT;
+        return n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    var n;
+    while ((n = it.nextNode())) {
+      var cle = n.nodeValue.replace(/\s+/g, ' ').trim();
+      if (dico[cle]) n.nodeValue = n.nodeValue.replace(cle, dico[cle]);
+    }
+    document.querySelectorAll('[placeholder]').forEach(function (el) {
+      var v = el.getAttribute('placeholder'); if (dico[v]) el.setAttribute('placeholder', dico[v]);
+    });
+  }
+  function basculer(vers) {
+    if (vers === langue) return;
+    traduire(vers); langue = vers; document.documentElement.lang = vers;
+    document.querySelectorAll('.langues button').forEach(function (b) {
+      b.setAttribute('aria-current', String(b.dataset.lang === vers));
+    });
+  }
+  document.querySelectorAll('.langues button').forEach(function (b) {
+    b.addEventListener('click', function () { basculer(b.dataset.lang); });
+  });
+  if (p.get('lang') === 'en' || (!p.get('lang') && (navigator.language || 'fr').slice(0, 2).toLowerCase() !== 'fr')) basculer('en');
+
+
+  /* panneau compte : on renvoie vers la page panier qui le porte */
+  var bc = document.getElementById('btnCompte');
+  if (bc) bc.addEventListener('click', function () { location.href = 'panier.html#compte'; });
+
+  $('#annee').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
