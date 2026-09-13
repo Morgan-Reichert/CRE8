@@ -299,6 +299,19 @@ img{ display:block; max-width:100%; }
       <button type="submit" class="bouton">Créer mon espace</button>
     </form>
 
+    <!-- ---- nouveau mot de passe, après un lien de réinitialisation ---- -->
+    <form id="formNeuf" novalidate hidden>
+      <div class="champ champ--mdp">
+        <label for="neufMdp">Nouveau mot de passe <small>— 8 caractères minimum</small></label>
+        <input class="saisie" type="password" id="neufMdp" name="motdepasse" autocomplete="new-password"
+               placeholder="••••••••" required minlength="8">
+        <button type="button" class="oeil" data-oeil="neufMdp" aria-label="Afficher le mot de passe">
+          <svg aria-hidden="true"><use href="#i-oeil"/></svg>
+        </button>
+      </div>
+      <button type="submit" class="bouton">Enregistrer et ouvrir mon espace</button>
+    </form>
+
     <p class="accuse" id="accuse" role="status" hidden></p>
 
     <div class="pied-volet">
@@ -345,6 +358,8 @@ img{ display:block; max-width:100%; }
 </main>
 </div>
 
+<script src="vendor/supabase-js.js"></script>
+<script src="cre8-supabase.js"></script>
 <script>
 (function () {
   var $ = function (s) { return document.querySelector(s); };
@@ -404,84 +419,130 @@ img{ display:block; max-width:100%; }
   });
 
   /* ==========================================================
-     Envoi
-     data-endpoint sur le <form> : URL qui reçoit la demande en
-     POST JSON. Tant qu'elle est vide, aucune authentification
-     n'est branchée et on le dit — plutôt que de simuler une
-     session qui n'existe pas.
+     Authentification — Supabase
      ========================================================== */
-  function brancher(form, chemin, succes) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+  var formNeuf = $('#formNeuf');
 
-      // messages de validation en français, avant le contrôle natif
-      var premier = null;
-      form.querySelectorAll('[required]').forEach(function (c) {
-        var vide = c.type === 'checkbox' ? !c.checked : !c.value.trim();
-        var court = c.minLength > 0 && c.value.length > 0 && c.value.length < c.minLength;
-        var mailKo = c.type === 'email' && c.value && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c.value);
-        if ((vide || court || mailKo) && !premier) premier = c;
-      });
-      if (premier) {
-        dire(premier.type === 'checkbox'
-          ? 'Il faut accepter les conditions générales pour créer le compte.'
-          : 'Vérifiez le champ « ' + (form.querySelector('label[for="' + premier.id + '"]').textContent.split('—')[0].trim()) + ' ».', true);
-        premier.focus();
-        return;
-      }
-
-      var donnees = {};
-      new FormData(form).forEach(function (v, k) { donnees[k] = v; });
-
-      var url = form.dataset.endpoint;
-      if (!url) {
-        dire('Démonstration — aucune authentification n’est branchée pour l’instant. '
-           + 'Le formulaire est prêt à recevoir votre endpoint (attribut data-endpoint). '
-           + 'On vous emmène quand même dans l’espace pour que vous puissiez le parcourir.');
-        setTimeout(function () { location.href = 'espace.html?demo=1'; }, 1400);
-        return;
-      }
-
-      var b = form.querySelector('button[type="submit"]');
-      b.disabled = true; b.setAttribute('aria-busy', 'true');
-      dire('Connexion en cours…');
-      fetch(url + chemin, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(donnees)
-      }).then(function (r) {
-        if (!r.ok) throw new Error(r.status);
-        return r.json();
-      }).then(function () {
-        dire(succes);
-        location.href = 'espace.html';
-      }).catch(function () {
-        dire('Connexion impossible pour le moment. Réessayez, ou écrivez à bonjour@qlicklab.eu.', true);
-      }).then(function () {
-        b.disabled = false; b.removeAttribute('aria-busy');
-      });
+  // messages de validation en français, avant le contrôle natif du navigateur
+  function valider(form) {
+    var premier = null;
+    form.querySelectorAll('[required]').forEach(function (c) {
+      var vide = c.type === 'checkbox' ? !c.checked : !c.value.trim();
+      var court = c.minLength > 0 && c.value.length > 0 && c.value.length < c.minLength;
+      var mailKo = c.type === 'email' && c.value && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(c.value);
+      if ((vide || court || mailKo) && !premier) premier = c;
     });
+    if (!premier) return true;
+    var etiq = form.querySelector('label[for="' + premier.id + '"]');
+    dire(premier.type === 'checkbox'
+      ? 'Il faut accepter les conditions générales pour créer le compte.'
+      : 'Vérifiez le champ « ' + (etiq ? etiq.textContent.split('—')[0].trim() : premier.name) + ' ».', true);
+    premier.focus();
+    return false;
   }
-  brancher(formCo, '/connexion', 'Bienvenue. Ouverture de votre espace…');
-  brancher(formCre, '/inscription', 'Compte créé. Ouverture de votre espace…');
 
-  /* ---------- Google ----------
-     À brancher sur votre flux OAuth : redirigez vers l'URL
-     d'autorisation Google, qui reviendra sur votre callback. */
-  $('#btnGoogle').addEventListener('click', function () {
-    var oauth = this.dataset.oauth;
-    if (oauth) { location.href = oauth; return; }
-    dire('Démonstration — la connexion Google n’est pas encore branchée. '
-       + 'Posez l’URL d’autorisation OAuth dans l’attribut data-oauth de ce bouton.');
-    setTimeout(function () { location.href = 'espace.html?demo=1'; }, 1400);
+  function occupe(form, oui) {
+    var b = form.querySelector('button[type="submit"]');
+    b.disabled = oui;
+    if (oui) b.setAttribute('aria-busy', 'true'); else b.removeAttribute('aria-busy');
+  }
+
+  function echec(e) { dire(CRE8.messageErreur(e), true); }
+
+  if (CRE8.absent) {
+    dire(CRE8.messageErreur(), true);
+    return;
+  }
+
+  /* Déjà connecté ? On n'oblige personne à se reconnecter. Sauf au retour
+     d'un lien de réinitialisation : là, il faut poser le nouveau mot de passe. */
+  var enRecuperation = /type=recovery/.test(location.hash);
+  CRE8.sb.auth.onAuthStateChange(function (evt) {
+    if (evt === 'PASSWORD_RECOVERY') {
+      enRecuperation = true;
+      formCo.hidden = true; formCre.hidden = true; formNeuf.hidden = false;
+      $('#titre').textContent = 'Choisissez un nouveau mot de passe';
+      $('#chapo').textContent = 'Il remplacera l’ancien dès que vous l’aurez enregistré.';
+      dire('Lien vérifié. Saisissez votre nouveau mot de passe.');
+    }
+  });
+  if (!enRecuperation) {
+    CRE8.session().then(function (s) { if (s) location.replace('espace.html'); });
+  }
+
+  /* ---------- connexion ---------- */
+  formCo.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valider(formCo)) return;
+    occupe(formCo, true);
+    dire('Connexion en cours…');
+    CRE8.connexion($('#coEmail').value.trim(), $('#coMdp').value)
+      .then(function () {
+        dire('Bienvenue. Ouverture de votre espace…');
+        location.href = 'espace.html';
+      })
+      .catch(echec)
+      .then(function () { occupe(formCo, false); });
   });
 
+  /* ---------- création de compte ---------- */
+  formCre.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valider(formCre)) return;
+    occupe(formCre, true);
+    dire('Création du compte…');
+    CRE8.inscription($('#creNom').value.trim(), $('#creEmail').value.trim(), $('#creMdp').value)
+      .then(function (d) {
+        if (CRE8.inscriptionOuverte(d)) {
+          dire('Compte créé. Ouverture de votre espace…');
+          location.href = 'espace.html';
+        } else {
+          dire('Compte créé. Ouvrez le lien de confirmation que nous venons d’envoyer à '
+             + $('#creEmail').value.trim() + ' pour activer votre espace.');
+        }
+      })
+      .catch(echec)
+      .then(function () { occupe(formCre, false); });
+  });
+
+  /* ---------- nouveau mot de passe ---------- */
+  formNeuf.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valider(formNeuf)) return;
+    occupe(formNeuf, true);
+    CRE8.sb.auth.updateUser({ password: $('#neufMdp').value })
+      .then(function (r) {
+        if (r.error) throw r.error;
+        dire('Mot de passe enregistré. Ouverture de votre espace…');
+        location.href = 'espace.html';
+      })
+      .catch(echec)
+      .then(function () { occupe(formNeuf, false); });
+  });
+
+  /* ---------- Google ---------- */
+  $('#btnGoogle').addEventListener('click', function () {
+    var b = this;
+    b.disabled = true;
+    dire('Redirection vers Google…');
+    CRE8.google().catch(function (e) { echec(e); b.disabled = false; });
+  });
+
+  /* ---------- mot de passe oublié ---------- */
   $('#oubli').addEventListener('click', function (e) {
     e.preventDefault();
     var mail = $('#coEmail').value.trim();
-    dire(mail
-      ? 'Si un compte existe pour ' + mail + ', un lien de réinitialisation vient d’y être envoyé.'
-      : 'Indiquez d’abord votre e-mail, puis recliquez sur « Mot de passe oublié ».', !mail);
+    if (!mail) {
+      dire('Indiquez d’abord votre e-mail, puis recliquez sur « Mot de passe oublié ».', true);
+      $('#coEmail').focus();
+      return;
+    }
+    dire('Envoi du lien…');
+    CRE8.motDePasseOublie(mail)
+      .then(function () {
+        dire('Si un compte existe pour ' + mail + ', un lien de réinitialisation vient d’y être envoyé.');
+      })
+      .catch(echec);
   });
 })();
 </script>

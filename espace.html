@@ -494,6 +494,35 @@ button{ font:inherit; }
 .demo svg{ width:16px; height:16px; flex:0 0 auto; }
 .demo b{ font-weight:800; }
 
+/* ---- écran d'attente et reprise d'un dossier Qlicklab ---- */
+.attente{
+  display:flex; align-items:center; gap:.6rem; padding:1rem 0;
+  color:var(--gris); font-size:.9rem; font-weight:600;
+}
+.attente i{
+  width:16px; height:16px; border-radius:50%; flex:0 0 auto;
+  border:2px solid rgba(49,62,255,.25); border-top-color:var(--bleu);
+  animation:tourne .7s linear infinite;
+}
+@keyframes tourne{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){ .attente i{ animation-duration:2.4s; } }
+
+.reprise{ max-width:32rem; margin:2rem auto; text-align:center; }
+.reprise h2{ font-family:var(--titre); font-size:1.35rem; margin:0 0 .4rem; color:var(--noir); }
+.reprise p{ margin:0 0 1.2rem; color:var(--gris); font-size:.94rem; }
+.reprise form{ display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap; }
+.reprise input{
+  font:inherit; font-weight:700; letter-spacing:.12em; text-align:center;
+  padding:.7rem 1rem; border:1.5px solid var(--trait); border-radius:12px;
+  background:#fff; color:var(--noir); width:11rem;
+}
+.reprise input:focus-visible{ outline:2px solid var(--bleu); outline-offset:2px; border-color:var(--bleu); }
+.reprise__note{ margin-top:1rem; font-size:.85rem; }
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
 /* ============================================================
    mobile : le rail vertical passe en barre basse et l'entête
    s'empile. Sans ça, les onglets écrasaient le titre sur une
@@ -589,8 +618,8 @@ button{ font:inherit; }
           <svg aria-hidden="true"><use href="#i-fleche-g"/></svg>
         </a>
         <div class="entete__titre">
-          <h1>Menuiserie Delvaux</h1>
-          <p>Site sur-mesure · 3 pages · livraison prévue le <b id="dateLivraison">28 septembre</b></p>
+          <h1 id="nomEntreprise">Menuiserie Delvaux</h1>
+          <p><span id="formuleProjet">Site sur-mesure · 3 pages</span> · livraison prévue le <b id="dateLivraison">28 septembre</b></p>
         </div>
       </div>
       <div class="onglets" role="tablist" aria-label="Sections">
@@ -606,10 +635,31 @@ button{ font:inherit; }
       </div>
     </header>
 
-    <p class="demo" id="bandeauDemo">
+    <p class="demo" id="bandeauDemo" hidden>
       <svg aria-hidden="true"><use href="#i-alerte"/></svg>
-      <span><b>Démonstration —</b> aucune authentification ni paiement n'est branché. Les données sont fictives et restent dans ce navigateur.</span>
+      <span><b>Démonstration —</b> les données sont fictives et restent dans ce navigateur. Rien n'est enregistré, aucun paiement n'est prélevé.</span>
     </p>
+
+    <p class="demo" id="bandeauPaiement" hidden>
+      <svg aria-hidden="true"><use href="#i-alerte"/></svg>
+      <span><b>Paiement en ligne à venir —</b> vos ajouts sont bien enregistrés et transmis à l'équipe, qui vous envoie le lien de règlement par e-mail.</span>
+    </p>
+
+    <p class="attente" id="chargement"><i aria-hidden="true"></i> Chargement de votre espace…</p>
+
+    <!-- reprise d'un dossier Qlicklab : le client saisit son ancien code -->
+    <section class="reprise" id="reprise" hidden>
+      <h2>Retrouvez votre projet</h2>
+      <p>Votre dossier existe déjà chez nous. Saisissez le code d'accès que vous
+         utilisiez sur Qlicklab pour le rattacher à ce compte, une fois pour toutes.</p>
+      <form id="formReprise" novalidate>
+        <label class="sr-only" for="codeAcces">Code d'accès</label>
+        <input id="codeAcces" name="code" inputmode="numeric" autocomplete="off"
+               placeholder="000000" maxlength="12" required>
+        <button type="submit" class="btn btn--bleu">Rattacher</button>
+      </form>
+      <p class="reprise__note" id="repriseNote" role="status"></p>
+    </section>
 
     <!-- ============ vue : accueil ============ -->
     <section class="vue" id="vueAccueil">
@@ -623,18 +673,18 @@ button{ font:inherit; }
             <div class="avancement__haut">
               <div>
                 <p class="avancement__eti">Avancement du projet</p>
-                <h2 id="tAvancement">Jour <span id="jourCourant">6</span> sur 14</h2>
+                <h2 id="tAvancement">Jour <span id="jourCourant">6</span> sur <span id="cycleTotal">14</span></h2>
               </div>
-              <p class="avancement__etat"><i></i> Intégration en cours</p>
+              <p class="avancement__etat"><i></i> <span id="etatPhase">Intégration en cours</span></p>
             </div>
 
             <div class="segments" id="segments" role="img" aria-label="6 jours sur 14 écoulés"></div>
             <p class="avancement__legende">
-              <span>Commande le 14 septembre</span>
-              <span>Mise en ligne le 28 septembre</span>
+              <span id="legendeCommande">Commande le 14 septembre</span>
+              <span id="legendeLivraison">Mise en ligne le 28 septembre</span>
             </p>
 
-            <div class="jalons">
+            <div class="jalons" id="jalons">
               <div class="jalon">
                 <span class="jalon__ic"><svg aria-hidden="true"><use href="#i-check"/></svg></span>
                 <b>Questionnaire</b><span>Jour 1</span>
@@ -674,7 +724,7 @@ button{ font:inherit; }
               <h2 id="tOptions">Ajouter une option</h2>
               <span class="compte">au prix du catalogue</span>
             </div>
-            <p class="note" style="margin:-.5rem 0 1.1rem">
+            <p class="note" style="margin:-.5rem 0 1.1rem" id="noteOptions">
               Vous en êtes à l'intégration : tout ce qui touche à la structure se décide maintenant,
               après la mise en ligne ce sera une reprise. Les prix sont les mêmes qu'au devis, il n'y a pas de majoration.
             </p>
@@ -889,6 +939,8 @@ button{ font:inherit; }
   </button>
 </div>
 
+<script src="vendor/supabase-js.js"></script>
+<script src="cre8-supabase.js"></script>
 <script>
 (function () {
 'use strict';
@@ -896,9 +948,18 @@ var $ = function (s) { return document.querySelector(s); };
 var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
 
 /* ============================================================
-   0. données de démonstration
-   Dans la version branchée, tout ceci vient de votre API.
+   0. source des données
+
+   LIVE vaut { compte, projet } dès que la page tourne sur un
+   compte connecté : tout vient alors de Supabase et y retourne.
+   Les valeurs ci-dessous ne servent qu'au mode ?demo=1, qui
+   permet de faire visiter l'espace sans créer de compte.
    ============================================================ */
+var LIVE = null;
+var LIGNES = {};        // id d'option -> id de la ligne cre8_projet_options
+var BRUT   = {};        // id d'option -> libellé non échappé, pour les réécritures
+var couper = null;      // arrête l'écoute temps réel
+
 var PROJET = {
   base: 1240,          // devis initial, hors options ajoutées en cours
   regle: 620,          // acompte déjà payé
@@ -947,10 +1008,16 @@ etat.achetees   = etat.achetees   || [];   // options déjà réglées
 etat.offres     = etat.offres     || [];   // propositions poussées depuis le chat
 etat.messages   = etat.messages   || null; // null = on pose la conversation d'exemple
 etat.nonLus     = etat.nonLus     || 0;
-function sauver() { Etat.ecrire(etat); }
 
-/* le bandeau reste affiché tant qu'aucun endpoint n'est branché ; retirez-le
-   du HTML le jour où l'API et le paiement répondent pour de vrai. */
+/* En mode connecté, l'état vit dans la base : le navigateur n'en garde rien. */
+function sauver() { if (!LIVE) Etat.ecrire(etat); }
+
+/* Une écriture a échoué : on le dit et on remet l'écran d'aplomb plutôt que
+   de laisser l'interface afficher un résultat que la base n'a pas enregistré. */
+function raterEcriture(e) {
+  alert(window.CRE8 ? CRE8.messageErreur(e) : 'Enregistrement impossible. Réessayez.');
+  return recharger();
+}
 
 /* ---- format ---- */
 function euro(n) { return n.toLocaleString('fr-BE', { maximumFractionDigits: 0 }) + ' €'; }
@@ -970,6 +1037,7 @@ function aller(vue) {
   });
   if (vue === 'chat') {
     etat.nonLus = 0; sauver(); majPastille();
+    if (LIVE) CRE8.marquerLu(LIVE.projet.id);
     setTimeout(function () { var f = $('#fil'); f.scrollTop = f.scrollHeight; }, 30);
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -986,14 +1054,15 @@ function majPastille() {
 /* ============================================================
    2. avancement
    ============================================================ */
-(function segments() {
-  var s = $('#segments'), h = '';
+function rendreSegments() {
+  var h = '';
   for (var i = 1; i <= PROJET.cycle; i++) {
     h += '<i class="' + (i < PROJET.jour ? 'fait' : i === PROJET.jour ? 'en-cours' : '') + '"></i>';
   }
-  s.innerHTML = h;
+  $('#segments').innerHTML = h;
   $('#jourCourant').textContent = PROJET.jour;
-})();
+  $('#cycleTotal').textContent = PROJET.cycle;
+}
 
 /* ============================================================
    3. argent — le total suit les options achetées
@@ -1015,11 +1084,14 @@ function trouverOption(id) {
 function majArgent() {
   var total = PROJET.base + totalAchete();
   var reste = total - PROJET.regle;
-  $('#totalProjet').textContent = euro(total);
+  /* Un dossier repris de Qlicklab peut n'avoir aucun montant enregistré :
+     mieux vaut l'écrire que d'afficher un « 0 € » qui ressemble à un devis. */
+  var sansMontant = total === 0;
+  $('#totalProjet').textContent = sansMontant ? 'à établir' : euro(total);
   $('#dejaRegle').textContent = euro(PROJET.regle);
-  $('#resteRegler').textContent = euro(reste);
-  $('#totalDetail').textContent = euro(total);
-  $('#barrePaie').style.width = Math.round(PROJET.regle / total * 100) + '%';
+  $('#resteRegler').textContent = sansMontant ? '—' : euro(reste);
+  $('#totalDetail').textContent = sansMontant ? 'à établir' : euro(total);
+  $('#barrePaie').style.width = (total > 0 ? Math.round(PROJET.regle / total * 100) : 0) + '%';
   $('#notePaie').textContent = etat.achetees.length
     ? 'Dont ' + euro(totalAchete()) + ' d’options ajoutées en cours de projet. Le solde est dû à la mise en ligne.'
     : 'Le solde est dû à la mise en ligne, pas avant.';
@@ -1033,12 +1105,16 @@ function majArgent() {
   $('#detailProjet').innerHTML = lignes;
 
   // livraison décalée par les options achetées
-  var joursAjoutes = etat.achetees.reduce(function (t, id) {
-    var o = trouverOption(id); return t + (o && o.jours ? o.jours : 0);
-  }, 0);
-  var d = new Date(PROJET.livraison);
-  d.setDate(d.getDate() + joursAjoutes);
-  $('#dateLivraison').textContent = jourMois(d);
+  if (!PROJET.livraison) {
+    $('#dateLivraison').textContent = 'à définir';
+  } else {
+    var joursAjoutes = etat.achetees.reduce(function (t, id) {
+      var o = trouverOption(id); return t + (o && o.jours ? o.jours : 0);
+    }, 0);
+    var d = new Date(PROJET.livraison);
+    d.setDate(d.getDate() + joursAjoutes);
+    $('#dateLivraison').textContent = jourMois(d);
+  }
 }
 
 /* ============================================================
@@ -1073,9 +1149,25 @@ function rendreOptions() {
   $$('[data-opt]').forEach(function (b) {
     b.addEventListener('click', function () {
       var id = b.dataset.opt, i = etat.panier.indexOf(id);
-      if (i > -1) etat.panier.splice(i, 1); else etat.panier.push(id);
-      b.setAttribute('aria-pressed', String(i === -1));
-      sauver(); majAvenant();
+      var ajout = i === -1;
+      if (ajout) etat.panier.push(id); else etat.panier.splice(i, 1);
+      b.setAttribute('aria-pressed', String(ajout));
+      majAvenant();
+
+      if (!LIVE) { sauver(); return; }
+      b.disabled = true;
+      var fini = function () { b.disabled = false; };
+      if (ajout) {
+        var o = trouverOption(id);
+        CRE8.ajouterAuPanier(LIVE.projet.id, {
+          id: id, nom: BRUT[id] || o.nom, prix: o.prix, jours: o.jours, catalogue: !!o.catalogue
+        }).then(function (ligne) { if (ligne) LIGNES[id] = ligne.id; })
+          .catch(raterEcriture).then(fini);
+      } else {
+        CRE8.retirerDuPanier(LIGNES[id])
+          .then(function () { delete LIGNES[id]; })
+          .catch(raterEcriture).then(fini);
+      }
     });
   });
 }
@@ -1098,16 +1190,46 @@ function majAvenant() {
 }
 
 $('#avenantVider').addEventListener('click', function () {
-  etat.panier = []; sauver(); rendreOptions(); majAvenant();
+  var vidées = etat.panier.slice();
+  etat.panier = []; rendreOptions(); majAvenant();
+  if (!LIVE) { sauver(); return; }
+  Promise.all(vidées.map(function (id) {
+    return CRE8.retirerDuPanier(LIGNES[id]).then(function () { delete LIGNES[id]; });
+  })).catch(raterEcriture);
 });
 
 $('#avenantPayer').addEventListener('click', function () {
   var total = 0;
   etat.panier.forEach(function (id) { var o = trouverOption(id); if (o) total += o.prix; });
-  var noms = etat.panier.map(function (id) { var o = trouverOption(id); return o ? o.nom : id; });
+  var noms = etat.panier.map(function (id) {
+    var o = trouverOption(id);
+    return BRUT[id] || (o ? o.nom : id);
+  });
+  if (!noms.length) return;
 
-  /* ICI : POST vers votre API, qui crée l'avenant puis la transaction
-     Mollie ou Stripe et renvoie l'URL de redirection. */
+  /* Pas de prestataire de paiement branché pour l'instant : on ne fait donc
+     pas semblant d'encaisser. La demande est enregistrée et transmise à
+     l'équipe, qui envoie le lien de règlement par e-mail. Le jour où Mollie
+     ou Stripe est branché, c'est ici que part la transaction. */
+  if (LIVE) {
+    if (!confirm('Confirmer l’ajout à votre projet ?\n\n' + noms.join('\n')
+      + '\n\nTotal : ' + euro(total)
+      + '\n\nL’équipe vous envoie le lien de règlement par e-mail. Rien n’est prélevé maintenant.')) return;
+
+    var b = this;
+    b.disabled = true;
+    CRE8.envoyerMessage(LIVE.projet.id, LIVE.compte, {
+      role: 'systeme', type: 'systeme',
+      texte: 'Avenant demandé : ' + noms.join(', ') + ' — ' + euro(total)
+           + '. L’équipe envoie le lien de règlement par e-mail.'
+    }).then(function () {
+      return CRE8.ajouterAction(LIVE.projet.id, 'Avenant demandé — ' + noms.join(', '));
+    }).then(recharger)
+      .catch(raterEcriture)
+      .then(function () { b.disabled = false; });
+    return;
+  }
+
   if (!confirm('Démonstration — aucun paiement réel.\n\n'
     + noms.join('\n') + '\n\nTotal : ' + euro(total)
     + '\n\nValider l’ajout à votre projet ?')) return;
@@ -1223,15 +1345,27 @@ function accepterOffre(id) {
   if (!o) return;
   o.etat = 'acceptee';
   if (etat.panier.indexOf(id) === -1) etat.panier.push(id);
-  sauver();
   rendrePropositions(); rendreFil(); majAvenant();
   aller('accueil');
+
+  if (!LIVE) { sauver(); return; }
+  CRE8.repondreOffre(id, 'acceptee')
+    .then(function () {
+      return CRE8.ajouterAuPanier(LIVE.projet.id, {
+        id: id, offreId: id, nom: BRUT[id] || o.titre,
+        prix: o.prix, jours: o.jours, catalogue: false
+      });
+    })
+    .then(function (ligne) { if (ligne) LIGNES[id] = ligne.id; })
+    .catch(raterEcriture);
 }
 function refuserOffre(id) {
   var o = etat.offres.filter(function (x) { return x.id === id; })[0];
   if (!o) return;
   o.etat = 'refusee';
-  sauver(); rendrePropositions(); rendreFil();
+  rendrePropositions(); rendreFil();
+  if (!LIVE) { sauver(); return; }
+  CRE8.repondreOffre(id, 'refusee').catch(raterEcriture);
 }
 
 /* ============================================================
@@ -1278,15 +1412,27 @@ function ajouterMessage(m) {
   etat.messages = (etat.messages || MSG_EXEMPLE.slice());
   m.quand = m.quand || heure(new Date());
   etat.messages.push(m);
-  sauver(); rendreFil();
+  rendreFil();
+  if (!LIVE) { sauver(); return Promise.resolve(); }
+  return CRE8.envoyerMessage(LIVE.projet.id, LIVE.compte, {
+    role:    m.role === 'offre' ? 'equipe' : m.role,
+    type:    m.role === 'offre' ? 'offre' : (m.role === 'systeme' ? 'systeme' : 'message'),
+    texte:   m.texte || '',
+    offreId: m.offre || null
+  }).catch(raterEcriture);
 }
 
-/* ---- rôle : client ou équipe ---- */
+/* ---- rôle : client ou équipe ----
+   En démonstration, le bouton permet de voir les deux côtés de l'interface.
+   En mode connecté, le rôle vient du compte : on retire le bouton, et de
+   toute façon les politiques RLS refusent qu'un client écrive au nom de
+   l'équipe ou crée une offre. */
 var role = 'client';
-$('#btnRole').addEventListener('click', function () {
-  role = role === 'client' ? 'equipe' : 'client';
-  this.dataset.actif = role;
-  this.textContent = role === 'client' ? 'Client' : 'Équipe';
+function appliquerRole(r) {
+  role = r;
+  var b = $('#btnRole');
+  b.dataset.actif = role;
+  b.textContent = role === 'client' ? 'Client' : 'Équipe';
   $('#saisie').placeholder = role === 'equipe'
     ? 'Écrire, ou taper / pour une commande…'
     : 'Écrire un message…';
@@ -1294,6 +1440,9 @@ $('#btnRole').addEventListener('click', function () {
     ? '<kbd>/</kbd> ouvre les commandes de l’équipe · <kbd>Entrée</kbd> pour envoyer'
     : '<kbd>Entrée</kbd> pour envoyer · <kbd>Maj + Entrée</kbd> pour un retour à la ligne';
   fermerPalette(); fermerComposeur();
+}
+$('#btnRole').addEventListener('click', function () {
+  appliquerRole(role === 'client' ? 'equipe' : 'client');
 });
 
 /* ---- palette de commandes ---- */
@@ -1342,15 +1491,39 @@ $('#composeurEnvoyer').addEventListener('click', function () {
   var prix = parseInt($('#cPrix').value, 10);
   if (isNaN(prix)) prix = 0;
 
-  var o = {
-    id: 'off' + Date.now(),
+  var brut = {
     titre: titre,
     texte: $('#cTexte').value.trim(),
     prix: prix,
     prixAvant: composeurPour === '/remise' && prix === 0 ? 180 : 0,
     jours: parseInt($('#cDelai').value, 10) || 0,
-    valide: $('#cValide').value
-      ? new Date($('#cValide').value).toLocaleDateString('fr-BE', { day:'numeric', month:'long' })
+    valide: $('#cValide').value || ''
+  };
+
+  if (LIVE) {
+    var b = this;
+    b.disabled = true;
+    CRE8.creerOffre(LIVE.projet.id, LIVE.compte, brut)
+      .then(function (offre) {
+        return CRE8.envoyerMessage(LIVE.projet.id, LIVE.compte, {
+          role: 'equipe', type: 'offre', texte: brut.titre, offreId: offre.id
+        });
+      })
+      .then(function () { fermerComposeur(); return recharger(); })
+      .catch(raterEcriture)
+      .then(function () { b.disabled = false; });
+    return;
+  }
+
+  var o = {
+    id: 'off' + Date.now(),
+    titre: brut.titre,
+    texte: brut.texte,
+    prix: brut.prix,
+    prixAvant: brut.prixAvant,
+    jours: brut.jours,
+    valide: brut.valide
+      ? new Date(brut.valide).toLocaleDateString('fr-BE', { day:'numeric', month:'long' })
       : '',
     auteur: 'Sam Corbeau', initiales: 'SC',
     quand: 'à l’instant',
@@ -1371,6 +1544,7 @@ function lancerCommande(cmd) {
       ACTIONS.unshift({ texte: t, date: jourMois(new Date()) + ' à ' + heure(new Date()) });
       rendreActions();
       ajouterMessage({ role: 'systeme', texte: '✓ ' + t });
+      if (LIVE) CRE8.ajouterAction(LIVE.projet.id, t).catch(raterEcriture);
     }
   } else if (cmd === '/relance') {
     ajouterMessage({
@@ -1422,42 +1596,327 @@ $('#btnEnvoyer').addEventListener('click', envoyer);
    8. divers
    ============================================================ */
 $('#btnReglages').addEventListener('click', function () {
+  if (LIVE) {
+    if (!confirm('Se déconnecter de votre espace ?')) return;
+    CRE8.deconnexion().then(function () { location.href = 'connexion.html'; });
+    return;
+  }
   if (confirm('Réinitialiser cette démonstration ?\n\nOptions, propositions et messages reviennent à leur état de départ.')) {
     try { localStorage.removeItem('cre8_espace'); } catch (e) {}
     location.reload();
   }
 });
 $('#avatar').addEventListener('click', function () {
+  if (LIVE) {
+    alert((LIVE.compte.nom || 'Votre compte') + '\n' + LIVE.compte.email
+        + '\n\n' + LIVE.projet.entreprise + '\nDossier ' + LIVE.projet.reference);
+    return;
+  }
   alert('Keeley Adams\nkeeleyadams@gmail.com\n\nMenuiserie Delvaux, Namur');
 });
-
-/* ---- première offre d'exemple, pour que l'accueil ne soit pas vide ---- */
-if (!etat.offres.length && etat.messages === null) {
-  etat.offres.push({
-    id: 'off-demo',
-    titre: 'Fiche chantier avec galerie avant/après',
-    texte: "Vos 8 photos méritent mieux qu’une galerie : une page par chantier, avec le matériau, la durée et le budget. C’est ce que regardent vos prospects avant de demander un devis.",
-    prix: 180, prixAvant: 0, jours: 2,
-    valide: '30 septembre',
-    auteur: 'Sam Corbeau', initiales: 'SC',
-    quand: 'il y a 2 h', etat: 'ouverte'
-  });
-  etat.messages = MSG_EXEMPLE.slice();
-  etat.messages.push({ role: 'offre', offre: 'off-demo' });
-  etat.nonLus = 1;
-  sauver();
-}
 
 function majTodo() {
   var l = $$('#todo li');
   $('#compteTodo').textContent = l.filter(function (x) { return x.classList.contains('ok'); }).length
     + ' sur ' + l.length;
 }
-majTodo();
 
-/* ---- premier rendu ---- */
-rendreOptions(); majAvenant(); majArgent();
-rendreActions(); rendreFactures(); rendrePropositions(); rendreFil(); majPastille();
+/* ============================================================
+   9. branchement
+   ============================================================ */
+
+/* Tout le rendu passe par innerHTML. Les textes venus de la base sont écrits
+   par de vraies personnes : on les échappe à l'entrée, une fois, plutôt que
+   de s'en remettre à chaque point d'insertion. */
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function dateCourte(s) {
+  if (!s) return '';
+  var d = new Date(s);
+  return isNaN(d) ? '' : jourMois(d);
+}
+function quandCourt(s) {
+  var d = new Date(s);
+  if (isNaN(d)) return '';
+  var memeJour = d.toDateString() === new Date().toDateString();
+  return memeJour ? heure(d)
+    : d.toLocaleDateString('fr-BE', { weekday: 'short', day: 'numeric', month: 'short' })
+      + ' ' + heure(d);
+}
+function initiales(nom, secours) {
+  var p = String(nom || '').trim().split(/\s+/);
+  var i = (p[0] ? p[0][0] : '') + (p[1] ? p[1][0] : '');
+  return (i || secours || 'CR').toUpperCase();
+}
+
+function rendreTout() {
+  rendreSegments();
+  rendreOptions(); majAvenant(); majArgent();
+  rendreActions(); rendreFactures(); rendrePropositions(); rendreFil(); majPastille();
+  majTodo();
+}
+
+/* ---- Supabase -> les formes que l'interface sait déjà afficher ---- */
+function appliquer(D) {
+  LIVE = { compte: D.compte, projet: D.projet, taches: D.taches };
+  LIGNES = {}; BRUT = {};
+
+  var p = D.projet;
+  var cycle = p.cycle || 14;
+  PROJET = {
+    base:  Number(p.devis_base) || 0,
+    regle: Number(p.montant_regle) || 0,
+    /* Sur un dossier repris, « jour » n'est qu'un nombre de jours écoulés
+       depuis la commande : sur un projet mis en pause, il court alors que le
+       travail, lui, n'avance pas. Le pourcentage d'avancement est la valeur
+       tenue à la main par l'équipe : c'est elle qui fait foi quand elle existe,
+       pour que la jauge et le chiffre racontent la même chose. */
+    jour:  p.avancement
+      ? Math.min(cycle, Math.max(1, Math.round(p.avancement / 100 * cycle)))
+      : (p.jour || 1),
+    cycle: cycle,
+    livraison: p.date_livraison ? new Date(p.date_livraison) : null
+  };
+
+  OPTIONS = D.options.map(function (o) {
+    BRUT[o.id] = o.nom;
+    return {
+      id: o.id, nom: esc(o.nom), prix: Number(o.prix) || 0, jours: o.jours || 0,
+      texte: esc(o.texte), reco: !!o.recommandee, catalogue: true
+    };
+  });
+
+  ACTIONS = D.actions.map(function (a) {
+    return { texte: esc(a.texte), date: quandCourt(a.cree_le) };
+  });
+
+  FACTURES = D.factures.map(function (f) {
+    return {
+      nom: esc(f.libelle), ref: esc(f.reference),
+      montant: Number(f.montant) || 0,
+      etat: f.etat === 'payee' || f.etat === 'paye' ? 'paye' : 'attente',
+      date: f.etat === 'payee' || f.etat === 'paye'
+        ? ('payée le ' + dateCourte(f.paye_le || f.cree_le))
+        : (f.echeance ? 'dû le ' + dateCourte(f.echeance) : 'à venir')
+    };
+  });
+
+  etat = { panier: [], achetees: [], offres: [], messages: [], nonLus: 0 };
+
+  /* Une ligne du projet vient du catalogue, d'une offre acceptée, ou de nulle
+     part (ajoutée à la main par l'équipe) : on la range sous la clé qui permet
+     à trouverOption() de la retrouver. */
+  var horsCatalogue = [];
+  D.projetOptions.forEach(function (l) {
+    var cle = l.option_id || l.offre_id || l.id;
+    LIGNES[cle] = l.id;
+    (l.statut === 'panier' ? etat.panier : etat.achetees).push(cle);
+    if (!l.option_id && !l.offre_id) {
+      horsCatalogue.push({
+        id: cle, titre: esc(l.nom), texte: '', prix: Number(l.prix) || 0,
+        prixAvant: 0, jours: l.jours || 0, valide: '',
+        auteur: 'Cre8', initiales: 'CR', quand: '', etat: 'acceptee'
+      });
+    }
+  });
+  etat.offres = horsCatalogue;
+
+  D.offres.forEach(function (o) {
+    if (etat.offres.some(function (x) { return x.id === o.id; })) return;
+    BRUT[o.id] = o.titre;
+    etat.offres.push({
+      id: o.id,
+      titre: esc(o.titre), texte: esc(o.texte),
+      prix: Number(o.prix) || 0,
+      prixAvant: Number(o.prix_avant) || 0,
+      jours: o.jours || 0,
+      valide: dateCourte(o.valide_jusqu),
+      auteur: esc(o.auteur_nom || 'Cre8'),
+      initiales: initiales(o.auteur_nom, 'CR'),
+      quand: quandCourt(o.cree_le),
+      etat: o.etat
+    });
+  });
+
+  etat.messages = D.messages.map(function (m) {
+    if (m.type === 'offre' && m.offre_id) return { role: 'offre', offre: m.offre_id };
+    if (m.type === 'systeme' || m.role === 'systeme') return { role: 'systeme', texte: esc(m.texte) };
+    var moi = m.auteur_id === D.compte.id;
+    return {
+      role: moi ? 'client' : (m.role === 'equipe' ? 'equipe' : 'client'),
+      auteur: esc(m.auteur_nom || 'Cre8'),
+      initiales: initiales(m.auteur_nom, 'CR'),
+      texte: esc(m.texte),
+      quand: quandCourt(m.cree_le)
+    };
+  });
+
+  etat.nonLus = D.messages.filter(function (m) {
+    return !m.lu_le && m.auteur_id !== D.compte.id;
+  }).length;
+
+  /* ---- en-tête et « ce qu'on attend de vous » ---- */
+  var PHASES = {
+    cadrage: 'Cadrage en cours', maquette: 'Maquette en cours',
+    developpement: 'Développement en cours', integration: 'Intégration en cours',
+    relecture: 'En relecture', livraison: 'Mise en ligne', termine: 'Projet livré',
+    pause: 'En pause'
+  };
+  $('#nomEntreprise').textContent = p.entreprise;
+  $('#formuleProjet').textContent = p.titre || p.formule || 'Projet en cours';
+  $('#etatPhase').textContent = PHASES[p.phase] || 'En cours';
+  $('#legendeCommande').textContent = p.date_commande
+    ? 'Commande le ' + dateCourte(p.date_commande) : 'Projet en cours';
+  $('#legendeLivraison').textContent = p.date_livraison
+    ? 'Mise en ligne le ' + dateCourte(p.date_livraison) : 'Mise en ligne à définir';
+  $('#segments').setAttribute('aria-label',
+    'Avancement : ' + (p.avancement || 0) + ' %');
+
+  /* Les jalons de la maquette décrivaient un projet d'exemple. Sur un vrai
+     dossier, on les recale sur la phase réellement en cours. */
+  var ETAPES = ['cadrage', 'maquette', 'developpement', 'livraison'];
+  var LIB = {
+    cadrage:      ['Cadrage', '#i-check'],
+    maquette:     ['Maquette', '#i-check'],
+    developpement:['Développement', '#i-etincelle'],
+    livraison:    ['Mise en ligne', '#i-boite']
+  };
+  var rang = ETAPES.indexOf(p.phase === 'integration' ? 'developpement'
+           : p.phase === 'relecture' ? 'developpement'
+           : p.phase === 'termine' ? 'livraison' : p.phase);
+  if (rang < 0) rang = 0;
+  $('#jalons').innerHTML = ETAPES.map(function (e, i) {
+    return '<div class="jalon' + (i === rang ? ' jalon--actif' : '') + '">' +
+      '<span class="jalon__ic"><svg aria-hidden="true"><use href="' + LIB[e][1] + '"/></svg></span>' +
+      '<b>' + LIB[e][0] + '</b><span>' +
+      (i < rang ? 'Fait' : i === rang ? 'En cours' : 'À venir') + '</span></div>';
+  }).join('');
+  $('#avatar').textContent = initiales(D.compte.nom, (D.compte.email || 'C')[0]);
+  $('#avatar').setAttribute('aria-label', D.compte.nom || D.compte.email);
+
+  var taches = D.taches || [];
+  $('#todo').innerHTML = taches.length
+    ? taches.map(function (t) {
+        return '<li class="' + (t.faite ? 'ok' : '') + '">' +
+          '<span class="case"><svg aria-hidden="true"><use href="#i-check"/></svg></span>' +
+          '<span><b>' + esc(t.titre) + '</b><small>' +
+            esc(t.detail || (t.faite ? 'Reçu' : t.echeance ? 'Attendu pour le ' + dateCourte(t.echeance) : 'En attente')) +
+          '</small></span></li>';
+      }).join('')
+    : '<li class="ok"><span class="case"><svg aria-hidden="true"><use href="#i-check"/></svg></span>' +
+      '<span><b>Rien à fournir pour l’instant</b><small>L’équipe vous prévient dès qu’elle attend quelque chose.</small></span></li>';
+
+  /* Tant qu'aucun prestataire de paiement n'est branché, le bouton ne doit pas
+     promettre un règlement : il transmet la demande, et c'est tout. */
+  $('#avenantPayer').innerHTML =
+    '<svg aria-hidden="true"><use href="#i-plus"/></svg> Demander l’ajout';
+  $('#noteOptions').textContent =
+    'Les prix sont ceux du catalogue, sans majoration en cours de projet. '
+    + 'Vous validez la demande ici, l’équipe vous envoie le lien de règlement par e-mail.';
+
+  appliquerRole(D.compte.role === 'equipe' || D.compte.role === 'admin' ? 'equipe' : 'client');
+  $('#btnRole').hidden = true;
+
+  rendreTout();
+}
+
+function recharger() {
+  return CRE8.chargerEspace().then(function (D) {
+    if (D && D.projet) appliquer(D);
+    return D;
+  });
+}
+
+/* ---- reprise d'un dossier Qlicklab ---- */
+$('#formReprise').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var code = $('#codeAcces').value.trim();
+  var note = $('#repriseNote');
+  if (!code) { note.textContent = 'Saisissez le code reçu par Qlicklab.'; return; }
+  var b = this.querySelector('button');
+  b.disabled = true;
+  note.textContent = 'Vérification…';
+  CRE8.rejoindreProjet(code)
+    .then(function (p) {
+      note.textContent = 'Dossier ' + (p ? p.reference : '') + ' rattaché. Ouverture…';
+      return recharger();
+    })
+    .then(function () {
+      $('#reprise').hidden = true;
+      $$('.vue').forEach(function (v, i) { v.hidden = i !== 0; });
+    })
+    .catch(function (err) { note.textContent = CRE8.messageErreur(err); })
+    .then(function () { b.disabled = false; });
+});
+
+/* ---- démarrage ---- */
+function modeDemo() {
+  $('#chargement').hidden = true;
+  $('#bandeauDemo').hidden = false;
+
+  /* première offre d'exemple, pour que l'accueil ne soit pas vide */
+  if (!etat.offres.length && etat.messages === null) {
+    etat.offres.push({
+      id: 'off-demo',
+      titre: 'Fiche chantier avec galerie avant/après',
+      texte: "Vos 8 photos méritent mieux qu’une galerie : une page par chantier, avec le matériau, la durée et le budget. C’est ce que regardent vos prospects avant de demander un devis.",
+      prix: 180, prixAvant: 0, jours: 2,
+      valide: '30 septembre',
+      auteur: 'Sam Corbeau', initiales: 'SC',
+      quand: 'il y a 2 h', etat: 'ouverte'
+    });
+    etat.messages = MSG_EXEMPLE.slice();
+    etat.messages.push({ role: 'offre', offre: 'off-demo' });
+    etat.nonLus = 1;
+    sauver();
+  }
+  rendreTout();
+}
+
+(function demarrer() {
+  var demande = /(^|[?&])demo=1(&|$)/.test(location.search);
+
+  if (demande || !window.CRE8 || CRE8.absent) {
+    if (!demande && window.CRE8 && CRE8.absent) {
+      $('#bandeauDemo').innerHTML =
+        '<svg aria-hidden="true"><use href="#i-alerte"/></svg><span><b>Hors ligne —</b> ' +
+        esc(CRE8.messageErreur()) + ' L’espace ci-dessous est une démonstration.</span>';
+    }
+    modeDemo();
+    return;
+  }
+
+  $$('.vue').forEach(function (v) { v.hidden = true; });
+
+  CRE8.chargerEspace().then(function (D) {
+    $('#chargement').hidden = true;
+
+    if (!D) { location.replace('connexion.html'); return; }
+
+    if (!D.projet) {
+      $('#reprise').hidden = false;
+      return;
+    }
+
+    $$('.vue').forEach(function (v, i) { v.hidden = i !== 0; });
+    $('#bandeauPaiement').hidden = false;
+    appliquer(D);
+
+    couper = CRE8.ecouter(D.projet.id, function () { recharger(); });
+    window.addEventListener('pagehide', function () { if (couper) couper(); });
+  }).catch(function (e) {
+    $('#chargement').hidden = true;
+    $('#bandeauDemo').innerHTML =
+      '<svg aria-hidden="true"><use href="#i-alerte"/></svg><span><b>Lecture impossible —</b> ' +
+      esc(CRE8.messageErreur(e)) + ' L’espace ci-dessous est une démonstration.</span>';
+    $$('.vue').forEach(function (v, i) { v.hidden = i !== 0; });
+    modeDemo();
+  });
+})();
 })();
 </script>
 </body>
