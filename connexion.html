@@ -470,10 +470,19 @@ img{ display:block; max-width:100%; }
     CRE8.session().then(function (s) { if (s) location.replace('espace.html'); });
   }
 
+  /* ---------- « rester connecté sur cet appareil » ----------
+     Le choix décide où la session est rangée : localStorage si on mémorise
+     (elle survit à la fermeture du navigateur), sessionStorage sinon.
+     Il doit donc être posé AVANT l'appel qui enregistre la session. */
+  var coRester = $('#coRester');
+  coRester.checked = CRE8.memorise();
+  coRester.addEventListener('change', function () { CRE8.memoriser(this.checked); });
+
   /* ---------- connexion ---------- */
   formCo.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!valider(formCo)) return;
+    CRE8.memoriser(coRester.checked);
     occupe(formCo, true);
     dire('Connexion en cours…');
     CRE8.connexion($('#coEmail').value.trim(), $('#coMdp').value)
@@ -489,6 +498,7 @@ img{ display:block; max-width:100%; }
   formCre.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!valider(formCre)) return;
+    CRE8.memoriser(true);
     occupe(formCre, true);
     dire('Création du compte…');
     CRE8.inscription($('#creNom').value.trim(), $('#creEmail').value.trim(), $('#creMdp').value)
@@ -523,6 +533,7 @@ img{ display:block; max-width:100%; }
   /* ---------- Google ---------- */
   $('#btnGoogle').addEventListener('click', function () {
     var b = this;
+    CRE8.memoriser(true);
     b.disabled = true;
     dire('Redirection vers Google…');
     CRE8.google().catch(function (e) { echec(e); b.disabled = false; });

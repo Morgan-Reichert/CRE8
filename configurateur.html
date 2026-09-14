@@ -412,6 +412,9 @@ img{ display:block; max-width:100%; height:auto; }
   <span>Mentions légales · Confidentialité · Conditions générales · TVA BE 0000.000.000</span>
 </div></footer>
 
+<script src="vendor/supabase-js.js"></script>
+<script src="cre8-supabase.js"></script>
+<script src="cre8-nav.js" defer></script>
 <script>
 
 /* ============================================================
@@ -841,9 +844,7 @@ window.Panier = (function () {
   calculer();
   if (p.get('lang') === 'en' || (!p.get('lang') && (navigator.language || 'fr').slice(0, 2).toLowerCase() !== 'fr')) basculer('en');
 
-  /* panneau compte : on renvoie vers la page panier qui le porte */
-  var bc = document.getElementById('btnCompte');
-  if (bc) bc.addEventListener('click', function () { location.href = 'panier.html#compte'; });
+  /* le bouton compte est piloté par cre8-nav.js */
 
   $('#annee').textContent = new Date().getFullYear();
 })();

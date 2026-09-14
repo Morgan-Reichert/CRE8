@@ -180,17 +180,10 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
 .etapes b{ display:block; font-family:var(--titre); font-weight:700; }
 .etapes span{ font-size:.92rem; color:var(--gris-txt); }
 
-/* ---- panneau compte ---- */
-.voile{ position:fixed; inset:0; z-index:200; background:rgba(10,10,14,.55); display:grid; place-items:center; padding:1rem; }
-.voile[hidden]{ display:none; }
-.modale{ background:#fff; border-radius:28px; width:min(30rem,100%); max-height:90vh; overflow:auto; padding:clamp(1.5rem,3vw,2.2rem); }
-.modale h2{ font-size:1.5rem; margin-bottom:.4rem; }
-.modale > p{ color:var(--gris-txt); font-size:.94rem; }
+/* ---- onglets de l'étape compte ---- */
 .onglets{ display:flex; gap:.3rem; padding:.25rem; background:var(--gris); border-radius:999px; margin:1.25rem 0 1.4rem; }
 .onglets button{ flex:1; font-family:var(--titre); font-weight:700; font-size:.9rem; padding:.6rem; border:none; border-radius:999px; background:none; color:var(--gris-txt); cursor:pointer; }
 .onglets button[aria-selected="true"]{ background:#fff; color:var(--noir); box-shadow:0 2px 8px -4px rgba(20,22,60,.35); }
-.modale__fermer{ float:right; width:36px; height:36px; border:none; border-radius:50%; background:var(--gris); cursor:pointer; font-size:1.1rem; line-height:1; }
-.modale__fermer:hover{ background:var(--noir); color:#fff; }
 
 .pied{ background:var(--noir); color:var(--gris-nuit); padding:2.5rem 0 3rem; font-size:.82rem; }
 .pied__in{ display:flex; flex-wrap:wrap; gap:.5rem 1.5rem; justify-content:space-between; }
@@ -484,37 +477,6 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   </section>
 </main>
 
-<!-- ================= PANNEAU COMPTE ================= -->
-<div class="voile" id="voileCompte" hidden>
-  <div class="modale" role="dialog" aria-modal="true" aria-labelledby="titreCompte">
-    <button class="modale__fermer" id="fermerCompte" aria-label="Fermer">✕</button>
-    <h2 id="titreCompte">Votre espace client</h2>
-    <p>Suivez vos projets, retrouvez vos factures et déposez vos contenus.</p>
-    <div class="onglets" role="tablist">
-      <button role="tab" type="button" data-o="connexion" aria-selected="true">Connexion</button>
-      <button role="tab" type="button" data-o="creation" aria-selected="false">Créer un compte</button>
-    </div>
-
-    <form class="champs" id="fConnexion">
-      <div class="champ"><label for="cEmail">E-mail</label><input id="cEmail" type="email" autocomplete="email" required></div>
-      <div class="champ"><label for="cMdp">Mot de passe</label><input id="cMdp" type="password" autocomplete="current-password" required></div>
-      <button class="bouton bouton--bleu bouton--plein" type="submit">Se connecter</button>
-      <p style="text-align:center; margin:.2rem 0 0"><a href="#" id="oubliModale" style="font-size:.88rem; color:var(--gris-txt)">Mot de passe oublié ?</a></p>
-    </form>
-
-    <form class="champs" id="fCreation" hidden>
-      <div class="champ"><label for="nNom">Nom et prénom</label><input id="nNom" autocomplete="name" required></div>
-      <div class="champ"><label for="nSociete">Société <i>(facultatif)</i></label><input id="nSociete" autocomplete="organization"></div>
-      <div class="champ"><label for="nEmail">E-mail</label><input id="nEmail" type="email" autocomplete="email" required></div>
-      <div class="champ"><label for="nMdp">Mot de passe <i>(8 caractères minimum)</i></label><input id="nMdp" type="password" autocomplete="new-password" required></div>
-      <label class="consent"><input type="checkbox" id="nCgu" required><span>J'accepte les <a href="#">conditions d'utilisation</a>.</span></label>
-      <button class="bouton bouton--bleu bouton--plein" type="submit">Créer mon compte</button>
-    </form>
-
-    <p class="info" id="infoCompte" role="status" style="margin-top:1.1rem"></p>
-  </div>
-</div>
-
 <footer class="pied">
   <div class="env pied__in">
     <span>© <span id="annee">2026</span> Qlicklab Collective — Cre8.</span>
@@ -524,6 +486,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
 
 <script src="vendor/supabase-js.js"></script>
 <script src="cre8-supabase.js"></script>
+<script src="cre8-nav.js" defer></script>
 <script>
 /* ============================================================
    PANIER
@@ -680,8 +643,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     if (c) {
       $('#deja').innerHTML = '<b>' + echapper(c.nom || c.email) + '</b><br>' + echapper(c.email) +
         (c.societe ? ' · ' + echapper(c.societe) : '') + (c.secteur ? ' · ' + echapper(c.secteur) : '');
-      var b = document.getElementById('btnCompte');
-      if (b) b.querySelector('.txt').textContent = (c.nom || '').split(' ')[0] || 'Mon compte';
+      /* le bouton de la barre de navigation appartient à cre8-nav.js */
     }
     prerempli();
   }
@@ -714,7 +676,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   }
 
   function direCompte(txt, erreur) {
-    ['#infoCompteTunnel', '#infoCompte'].forEach(function (sel) {
+    ['#infoCompteTunnel'].forEach(function (sel) {
       var el = $(sel); if (!el) return;
       el.textContent = txt;
       el.style.color = erreur ? 'var(--alerte)' : '';
@@ -857,70 +819,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     etape(5);
   });
 
-  /* ---------- panneau compte ---------- */
-  var voile = $('#voileCompte');
-  function compte(o) { voile.hidden = !o; document.body.style.overflow = o ? 'hidden' : ''; }
-  $('#btnCompte').addEventListener('click', function () {
-    if (Compte.connecte()) { etape(2); } else { compte(true); }
-  });
-  $('#fermerCompte').addEventListener('click', function () { compte(false); });
-  voile.addEventListener('click', function (e) { if (e.target === voile) compte(false); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') compte(false); });
-  /* Les onglets de la modale ne doivent toucher que la modale : le sélecteur
-     global attrapait aussi les onglets de l'étape 2 du tunnel. */
-  document.querySelectorAll('.modale .onglets button').forEach(function (b) {
-    b.addEventListener('click', function () {
-      document.querySelectorAll('.modale .onglets button').forEach(function (x) {
-        x.setAttribute('aria-selected', String(x === b));
-      });
-      $('#fConnexion').hidden = b.dataset.o !== 'connexion';
-      $('#fCreation').hidden = b.dataset.o !== 'creation';
-    });
-  });
-
-  $('#fConnexion').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!valide(this)) return;
-    if (!dispo) { direCompte(erreurTexte(), true); return; }
-    var form = this;
-    occupe(form, true);
-    direCompte('Connexion…');
-    CRE8.connexion($('#cEmail').value.trim(), $('#cMdp').value)
-      .then(function () {
-        direCompte('');
-        return chargerCompte().then(function () { compte(false); });
-      })
-      .catch(function (err) { direCompte(erreurTexte(err), true); })
-      .then(function () { occupe(form, false); });
-  });
-
-  $('#fCreation').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var mdpOk = $('#nMdp').value.length >= 8;
-    if (!valide(this) || !mdpOk || !$('#nCgu').checked) {
-      direCompte(!mdpOk ? 'Le mot de passe doit faire au moins 8 caractères.'
-                        : 'Vérifiez les champs signalés.', true);
-      return;
-    }
-    if (!dispo) { direCompte(erreurTexte(), true); return; }
-    var form = this;
-    occupe(form, true);
-    direCompte('Création du compte…');
-    CRE8.inscription($('#nNom').value.trim(), $('#nEmail').value.trim(), $('#nMdp').value,
-                     { societe: $('#nSociete').value.trim() })
-      .then(function (d) {
-        if (CRE8.inscriptionOuverte(d)) {
-          direCompte('Compte créé.');
-          return chargerCompte().then(function () { compte(false); });
-        }
-        direCompte('Compte créé. Ouvrez le lien de confirmation envoyé à '
-                 + $('#nEmail').value.trim() + '.');
-      })
-      .catch(function (err) { direCompte(erreurTexte(err), true); })
-      .then(function () { occupe(form, false); });
-  });
-
-  [['#oubliTunnel', '#lEmail'], ['#oubliModale', '#cEmail']].forEach(function (paire) {
+  [['#oubliTunnel', '#lEmail']].forEach(function (paire) {
     var lien = $(paire[0]); if (!lien) return;
     lien.addEventListener('click', function (e) {
       e.preventDefault();

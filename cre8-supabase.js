@@ -28,8 +28,42 @@ if (!w.supabase || !w.supabase.createClient) {
   return;
 }
 
+/* « Rester connecté sur cet appareil ».
+   Coché : la session va dans localStorage et survit à la fermeture du
+   navigateur. Décoché : sessionStorage, donc elle meurt avec l'onglet.
+   L'adaptateur relit le choix à chaque accès, ce qui permet de le changer
+   après la création du client — que supabase-js ne laisse pas reconfigurer. */
+var CLE_MEM = 'cre8_memoriser';
+
+function memorise() {
+  try { return localStorage.getItem(CLE_MEM) !== '0'; }
+  catch (e) { return false; }
+}
+function memoriser(oui) {
+  try { localStorage.setItem(CLE_MEM, oui ? '1' : '0'); } catch (e) {}
+}
+function coffre() {
+  try { return memorise() ? w.localStorage : w.sessionStorage; }
+  catch (e) { return null; }
+}
+
+var stockage = {
+  getItem:    function (k) { try { var s = coffre(); return s ? s.getItem(k) : null; } catch (e) { return null; } },
+  setItem:    function (k, v) { try { var s = coffre(); if (s) s.setItem(k, v); } catch (e) {} },
+  // au retrait, on nettoie les deux : le choix a pu changer entre-temps
+  removeItem: function (k) {
+    try { w.localStorage.removeItem(k); } catch (e) {}
+    try { w.sessionStorage.removeItem(k); } catch (e) {}
+  }
+};
+
 var sb = w.supabase.createClient(CONF.url, CONF.cle, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: stockage
+  }
 });
 
 /* URL du dossier courant, pour les retours OAuth et les liens de courriel. */
@@ -101,6 +135,7 @@ function profil() {
     return compteCourant(s).then(function (c) {
       return {
         id: c.id, email: c.email, nom: c.nom,
+        initiales: c.initiales || '', photo: c.avatar_url || '',
         tel: c.telephone || '', societe: c.societe || '', secteur: c.secteur || ''
       };
     });
@@ -145,7 +180,7 @@ function rejoindreProjet(code) {
    --------------------------------------------------------------------------- */
 function compteCourant(s) {
   return sb.from('cre8_comptes')
-    .select('id,email,nom,initiales,role,telephone,societe,secteur')
+    .select('id,email,nom,initiales,role,telephone,societe,secteur,avatar_url')
     .eq('id', s.user.id)
     .maybeSingle()
     .then(function (r) {
@@ -158,7 +193,8 @@ function compteCourant(s) {
         role: 'client',
         telephone: m.telephone || '',
         societe: m.societe || '',
-        secteur: m.secteur || ''
+        secteur: m.secteur || '',
+        avatar_url: m.avatar_url || m.picture || ''
       };
     });
 }
@@ -302,6 +338,8 @@ w.CRE8 = {
   motDePasseOublie: motDePasseOublie,
   deconnexion: deconnexion,
   profil: profil,
+  memorise: memorise,
+  memoriser: memoriser,
   rejoindreProjet: rejoindreProjet,
   chargerEspace: chargerEspace,
   ajouterAuPanier: ajouterAuPanier,
