@@ -77,15 +77,34 @@ function connexion(email, motdepasse) {
   return sb.auth.signInWithPassword({ email: email, password: motdepasse }).then(verifier);
 }
 
-function inscription(nom, email, motdepasse) {
+/* `extra` porte les coordonnées demandées par le tunnel de commande
+   (téléphone, société, secteur) : le trigger les recopie sur la fiche. */
+function inscription(nom, email, motdepasse, extra) {
+  var meta = { full_name: nom };
+  if (extra) {
+    if (extra.telephone) meta.telephone = extra.telephone;
+    if (extra.societe)   meta.societe   = extra.societe;
+    if (extra.secteur)   meta.secteur   = extra.secteur;
+  }
   return sb.auth.signUp({
     email: email,
     password: motdepasse,
-    options: {
-      data: { full_name: nom },
-      emailRedirectTo: base() + 'espace.html'
-    }
+    options: { data: meta, emailRedirectTo: base() + 'espace.html' }
   }).then(verifier);
+}
+
+/* Fiche du compte connecté, ou null. Sert au tunnel de commande pour
+   préremplir les coordonnées sans les redemander. */
+function profil() {
+  return session().then(function (s) {
+    if (!s) return null;
+    return compteCourant(s).then(function (c) {
+      return {
+        id: c.id, email: c.email, nom: c.nom,
+        tel: c.telephone || '', societe: c.societe || '', secteur: c.secteur || ''
+      };
+    });
+  });
 }
 
 /* Renvoie true si le compte est créé et déjà utilisable, false s'il faut
@@ -126,16 +145,20 @@ function rejoindreProjet(code) {
    --------------------------------------------------------------------------- */
 function compteCourant(s) {
   return sb.from('cre8_comptes')
-    .select('id,email,nom,initiales,role')
+    .select('id,email,nom,initiales,role,telephone,societe,secteur')
     .eq('id', s.user.id)
     .maybeSingle()
     .then(function (r) {
+      var m = s.user.user_metadata || {};
       return r.data || {
         id: s.user.id,
         email: s.user.email || '',
-        nom: (s.user.user_metadata && s.user.user_metadata.full_name) || '',
+        nom: m.full_name || '',
         initiales: '',
-        role: 'client'
+        role: 'client',
+        telephone: m.telephone || '',
+        societe: m.societe || '',
+        secteur: m.secteur || ''
       };
     });
 }
@@ -278,6 +301,7 @@ w.CRE8 = {
   google: google,
   motDePasseOublie: motDePasseOublie,
   deconnexion: deconnexion,
+  profil: profil,
   rejoindreProjet: rejoindreProjet,
   chargerEspace: chargerEspace,
   ajouterAuPanier: ajouterAuPanier,

@@ -325,10 +325,10 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
               <div class="champ"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="email" required><span class="err" hidden>Indiquez un e-mail valide.</span></div>
               <div class="champ"><label for="lMdp">Mot de passe</label><input id="lMdp" type="password" autocomplete="current-password" required><span class="err" hidden>Champ requis.</span></div>
               <button class="bouton bouton--bleu bouton--plein" type="submit">Se connecter et continuer</button>
-              <p style="text-align:center; margin:.2rem 0 0"><a href="#" style="font-size:.88rem; color:var(--gris-txt)">Mot de passe oublié ?</a></p>
+              <p style="text-align:center; margin:.2rem 0 0"><a href="#" id="oubliTunnel" style="font-size:.88rem; color:var(--gris-txt)">Mot de passe oublié ?</a></p>
             </form>
 
-            <p class="info" style="margin-top:1.1rem"><b>Démonstration —</b> aucune authentification n'est branchée. Les données restent dans ce navigateur.</p>
+            <p class="info" id="infoCompteTunnel" role="status" style="margin-top:1.1rem"></p>
           </div>
 
           <p style="margin-top:1rem"><button type="button" class="bouton bouton--sobre bouton--petit" data-retour="1">Retour au panier</button></p>
@@ -499,7 +499,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
       <div class="champ"><label for="cEmail">E-mail</label><input id="cEmail" type="email" autocomplete="email" required></div>
       <div class="champ"><label for="cMdp">Mot de passe</label><input id="cMdp" type="password" autocomplete="current-password" required></div>
       <button class="bouton bouton--bleu bouton--plein" type="submit">Se connecter</button>
-      <p style="text-align:center; margin:.2rem 0 0"><a href="#" style="font-size:.88rem; color:var(--gris-txt)">Mot de passe oublié ?</a></p>
+      <p style="text-align:center; margin:.2rem 0 0"><a href="#" id="oubliModale" style="font-size:.88rem; color:var(--gris-txt)">Mot de passe oublié ?</a></p>
     </form>
 
     <form class="champs" id="fCreation" hidden>
@@ -511,9 +511,7 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
       <button class="bouton bouton--bleu bouton--plein" type="submit">Créer mon compte</button>
     </form>
 
-    <p class="info" id="infoCompte" style="margin-top:1.1rem">
-      <b>Démonstration —</b> l'authentification n'est pas branchée. Voir le commentaire dans le code pour l'endpoint à connecter.
-    </p>
+    <p class="info" id="infoCompte" role="status" style="margin-top:1.1rem"></p>
   </div>
 </div>
 
@@ -524,6 +522,8 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   </div>
 </footer>
 
+<script src="vendor/supabase-js.js"></script>
+<script src="cre8-supabase.js"></script>
 <script>
 /* ============================================================
    PANIER
@@ -532,12 +532,13 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
    reprise depuis l'URL (?p=...) pour transmettre un panier
    entre deux pages ou par lien.
 
-   À BRANCHER CÔTÉ SERVEUR :
+   Le compte, lui, passe par Supabase (voir cre8-supabase.js).
+
+   RESTE À BRANCHER CÔTÉ SERVEUR :
    - création de commande : POST /api/commandes  (étape 3)
    - paiement : le serveur crée la transaction chez Mollie ou
      Stripe et renvoie l'URL de redirection. Aucune donnée de
      carte ne doit transiter par ce fichier.
-   - compte : POST /api/connexion et POST /api/inscription
    ============================================================ */
 (function () {
   'use strict';
@@ -633,21 +634,42 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
 
   /* ============================================================
      COMPTE
-     Stockage local avec repli mémoire. Le compte conditionne le
-     passage à la commande et préremplit tout ce qui suit.
-     À BRANCHER : POST /api/inscription et POST /api/connexion,
-     qui renvoient le profil ; remplacer Compte.ecrire() par la
-     réponse du serveur.
+     Le compte conditionne le passage à la commande et préremplit
+     tout ce qui suit.
      ============================================================ */
+  /* Le compte vit dans Supabase ; seules les coordonnées de livraison et de
+     facturation, propres à cette commande, restent dans le navigateur. */
   var memC = null;
+  var Livr = {
+    lire: function () {
+      try { return JSON.parse(localStorage.getItem('cre8_coordonnees')) || {}; }
+      catch (e) { return {}; }
+    },
+    ecrire: function (o) {
+      try { localStorage.setItem('cre8_coordonnees', JSON.stringify(o)); } catch (e) {}
+    }
+  };
   var Compte = {
     lire: function () {
-      try { var v = localStorage.getItem('cre8_compte'); if (v) return JSON.parse(v); } catch (e) {}
-      return memC;
+      if (!memC) return null;
+      var l = Livr.lire();
+      return {
+        nom: memC.nom, email: memC.email, secteur: memC.secteur,
+        tel:     memC.tel     || l.tel     || '',
+        societe: memC.societe || l.societe || '',
+        tva: l.tva || '', rue: l.rue || '', cp: l.cp || '',
+        ville: l.ville || '', pays: l.pays || 'Belgique'
+      };
     },
-    ecrire: function (o) { memC = o; try { localStorage.setItem('cre8_compte', JSON.stringify(o)); } catch (e) {} },
-    vider: function () { memC = null; try { localStorage.removeItem('cre8_compte'); } catch (e) {} },
-    connecte: function () { return !!(this.lire() && this.lire().email); }
+    ecrire: function (o) {
+      Livr.ecrire({
+        tel: o.tel, societe: o.societe, tva: o.tva,
+        rue: o.rue, cp: o.cp, ville: o.ville, pays: o.pays
+      });
+    },
+    poser:  function (p) { memC = p; },
+    vider:  function () { memC = null; },
+    connecte: function () { return !!(memC && memC.email); }
   };
   window.Compte = Compte;
 
@@ -656,12 +678,18 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     $('#blocDeja').hidden = !Compte.connecte();
     $('#blocCompte').hidden = Compte.connecte();
     if (c) {
-      $('#deja').innerHTML = '<b>' + (c.nom || c.email) + '</b><br>' + c.email +
-        (c.societe ? ' · ' + c.societe : '') + (c.secteur ? ' · ' + c.secteur : '');
+      $('#deja').innerHTML = '<b>' + echapper(c.nom || c.email) + '</b><br>' + echapper(c.email) +
+        (c.societe ? ' · ' + echapper(c.societe) : '') + (c.secteur ? ' · ' + echapper(c.secteur) : '');
       var b = document.getElementById('btnCompte');
       if (b) b.querySelector('.txt').textContent = (c.nom || '').split(' ')[0] || 'Mon compte';
     }
     prerempli();
+  }
+
+  function echapper(v) {
+    return String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   /* le compte remplit l'étape coordonnées */
@@ -674,6 +702,32 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     if (c.pays) { var s = $('#pays'); if (s) s.value = c.pays; }
   }
 
+  /* ---------- authentification ---------- */
+  var dispo = !!(window.CRE8 && !CRE8.absent);
+
+  /* Si le fichier lui-même n'a pas été servi, CRE8 n'existe pas du tout :
+     on ne peut donc pas compter dessus pour formuler l'erreur. */
+  function erreurTexte(e) {
+    if (window.CRE8 && CRE8.messageErreur) return CRE8.messageErreur(e);
+    return 'Le module de connexion n\u2019a pas pu \u00eatre charg\u00e9. '
+         + 'V\u00e9rifiez votre r\u00e9seau, puis rechargez la page.';
+  }
+
+  function direCompte(txt, erreur) {
+    ['#infoCompteTunnel', '#infoCompte'].forEach(function (sel) {
+      var el = $(sel); if (!el) return;
+      el.textContent = txt;
+      el.style.color = erreur ? 'var(--alerte)' : '';
+    });
+  }
+
+  function chargerCompte() {
+    if (!dispo) { majCompte(); return Promise.resolve(); }
+    return CRE8.profil().then(function (p) {
+      Compte.poser(p); majCompte();
+    }).catch(function () { majCompte(); });
+  }
+
   document.querySelectorAll('#blocCompte .onglets button').forEach(function (b) {
     b.addEventListener('click', function () {
       document.querySelectorAll('#blocCompte .onglets button').forEach(function (x) {
@@ -684,6 +738,11 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     });
   });
 
+  function occupe(form, oui) {
+    var b = form.querySelector('button[type="submit"]');
+    if (b) { b.disabled = oui; if (oui) b.setAttribute('aria-busy','true'); else b.removeAttribute('aria-busy'); }
+  }
+
   $('#fCreationP').addEventListener('submit', function (e) {
     e.preventDefault();
     var mdpOk = $('#kMdp').value.length >= 8;
@@ -691,24 +750,51 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
     var ok = valide(this) && mdpOk && $('#kCgu').checked;
     $('#errCreation').hidden = ok;
     if (!ok) return;
-    Compte.ecrire({
-      nom: $('#kNom').value.trim(), email: $('#kEmail').value.trim(), tel: $('#kTel').value.trim(),
-      societe: $('#kSociete').value.trim(), secteur: $('#kSecteur').value, pays: 'Belgique'
-    });
-    majCompte(); etape(3);
+    if (!dispo) { direCompte(erreurTexte(), true); return; }
+
+    var form = this;
+    occupe(form, true);
+    direCompte('Création du compte…');
+    CRE8.inscription($('#kNom').value.trim(), $('#kEmail').value.trim(), $('#kMdp').value, {
+      telephone: $('#kTel').value.trim(),
+      societe:   $('#kSociete').value.trim(),
+      secteur:   $('#kSecteur').value
+    }).then(function (d) {
+      Compte.ecrire({ tel: $('#kTel').value.trim(), societe: $('#kSociete').value.trim(),
+                      pays: 'Belgique' });
+      if (CRE8.inscriptionOuverte(d)) {
+        direCompte('Compte créé.');
+        return chargerCompte().then(function () { etape(3); });
+      }
+      direCompte('Compte créé. Ouvrez le lien de confirmation envoyé à '
+               + $('#kEmail').value.trim() + ', puis revenez ici pour commander.');
+    }).catch(function (err) {
+      direCompte(erreurTexte(err), true);
+    }).then(function () { occupe(form, false); });
   });
 
   $('#fConnexionP').addEventListener('submit', function (e) {
     e.preventDefault();
     if (!valide(this)) return;
-    /* démonstration : on ouvre une session à partir du seul e-mail */
-    var c = Compte.lire() || {};
-    c.email = $('#lEmail').value.trim();
-    Compte.ecrire(c); majCompte(); etape(3);
+    if (!dispo) { direCompte(erreurTexte(), true); return; }
+
+    var form = this;
+    occupe(form, true);
+    direCompte('Connexion…');
+    CRE8.connexion($('#lEmail').value.trim(), $('#lMdp').value)
+      .then(function () {
+        direCompte('');
+        return chargerCompte().then(function () { etape(3); });
+      })
+      .catch(function (err) { direCompte(erreurTexte(err), true); })
+      .then(function () { occupe(form, false); });
   });
 
   $('#vers3').addEventListener('click', function () { etape(3); });
-  $('#deconnexion').addEventListener('click', function () { Compte.vider(); majCompte(); });
+  $('#deconnexion').addEventListener('click', function () {
+    if (!dispo) { Compte.vider(); majCompte(); return; }
+    CRE8.deconnexion().then(function () { Compte.vider(); majCompte(); });
+  });
 
   /* on garde le profil à jour avec ce qui est saisi aux coordonnées */
   function memoriser() {
@@ -780,21 +866,75 @@ h1,h2,h3,p,li,dd{ overflow-wrap:break-word; }
   $('#fermerCompte').addEventListener('click', function () { compte(false); });
   voile.addEventListener('click', function (e) { if (e.target === voile) compte(false); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') compte(false); });
-  document.querySelectorAll('.onglets button').forEach(function (b) {
+  /* Les onglets de la modale ne doivent toucher que la modale : le sélecteur
+     global attrapait aussi les onglets de l'étape 2 du tunnel. */
+  document.querySelectorAll('.modale .onglets button').forEach(function (b) {
     b.addEventListener('click', function () {
-      document.querySelectorAll('.onglets button').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      document.querySelectorAll('.modale .onglets button').forEach(function (x) {
+        x.setAttribute('aria-selected', String(x === b));
+      });
       $('#fConnexion').hidden = b.dataset.o !== 'connexion';
       $('#fCreation').hidden = b.dataset.o !== 'creation';
     });
   });
-  ['#fConnexion', '#fCreation'].forEach(function (s) {
-    $(s).addEventListener('submit', function (e) {
+
+  $('#fConnexion').addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!valide(this)) return;
+    if (!dispo) { direCompte(erreurTexte(), true); return; }
+    var form = this;
+    occupe(form, true);
+    direCompte('Connexion…');
+    CRE8.connexion($('#cEmail').value.trim(), $('#cMdp').value)
+      .then(function () {
+        direCompte('');
+        return chargerCompte().then(function () { compte(false); });
+      })
+      .catch(function (err) { direCompte(erreurTexte(err), true); })
+      .then(function () { occupe(form, false); });
+  });
+
+  $('#fCreation').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var mdpOk = $('#nMdp').value.length >= 8;
+    if (!valide(this) || !mdpOk || !$('#nCgu').checked) {
+      direCompte(!mdpOk ? 'Le mot de passe doit faire au moins 8 caractères.'
+                        : 'Vérifiez les champs signalés.', true);
+      return;
+    }
+    if (!dispo) { direCompte(erreurTexte(), true); return; }
+    var form = this;
+    occupe(form, true);
+    direCompte('Création du compte…');
+    CRE8.inscription($('#nNom').value.trim(), $('#nEmail').value.trim(), $('#nMdp').value,
+                     { societe: $('#nSociete').value.trim() })
+      .then(function (d) {
+        if (CRE8.inscriptionOuverte(d)) {
+          direCompte('Compte créé.');
+          return chargerCompte().then(function () { compte(false); });
+        }
+        direCompte('Compte créé. Ouvrez le lien de confirmation envoyé à '
+                 + $('#nEmail').value.trim() + '.');
+      })
+      .catch(function (err) { direCompte(erreurTexte(err), true); })
+      .then(function () { occupe(form, false); });
+  });
+
+  [['#oubliTunnel', '#lEmail'], ['#oubliModale', '#cEmail']].forEach(function (paire) {
+    var lien = $(paire[0]); if (!lien) return;
+    lien.addEventListener('click', function (e) {
       e.preventDefault();
-      $('#infoCompte').innerHTML = '<b>Démonstration —</b> aucune authentification n’est branchée. Le formulaire est prêt à recevoir votre endpoint.';
+      var mail = ($(paire[1]).value || '').trim();
+      if (!mail) { direCompte('Indiquez d’abord votre e-mail.', true); $(paire[1]).focus(); return; }
+      if (!dispo) { direCompte(erreurTexte(), true); return; }
+      direCompte('Envoi du lien…');
+      CRE8.motDePasseOublie(mail).then(function () {
+        direCompte('Si un compte existe pour ' + mail + ', un lien de réinitialisation vient d’y être envoyé.');
+      }).catch(function (err) { direCompte(erreurTexte(err), true); });
     });
   });
 
-  majCompte();
+  chargerCompte();
   rendre(); etape(1);
   if (location.hash === '#compte') etape(2);
   $('#annee').textContent = new Date().getFullYear();
