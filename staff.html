@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Dossiers — équipe Cre8</title>
+<meta name="description" content="Vue d'ensemble des dossiers clients Cre8.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Cg fill='none' stroke='%23313EFF' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M26 18c-5 0-6 3-6 7s-1 7-5 7c4 0 5 3 5 7s1 7 6 7'/%3E%3Cpath d='M38 18c5 0 6 3 6 7s1 7 5 7c-4 0-5 3-5 7s-1 7-6 7'/%3E%3C/g%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#05070E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0A0B10; --bleu:#313EFF; --peri:#9FA1FF;
+  --papier:#fff; --gris:#F3F4F8; --gris-txt:#54555F; --gris-nuit:#8E8FA0;
+  --trait:#E4E5EC;
+  --vert:#0B8A5B; --vert-fond:#E6F4EE;
+  --ambre:#8A5B0B; --ambre-fond:#FAF0DC;
+  --alerte:#B4442C;
+  --titre:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --texte:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+}
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; min-height:100vh; background:var(--gris); color:var(--noir);
+  font-family:var(--texte); font-size:1rem; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ font-family:var(--titre); letter-spacing:-.035em; line-height:1.08; margin:0; }
+p{ margin:0 0 1em; }
+a{ color:inherit; }
+[hidden]{ display:none !important; }
+:focus-visible{ outline:3px solid var(--bleu); outline-offset:3px; border-radius:8px; }
+@media (prefers-reduced-motion:reduce){ *{ transition-duration:.001ms !important; animation-duration:.001ms !important; } }
+
+.env{ width:min(1180px,100% - 2rem); margin-inline:auto; }
+
+/* ---------- en-tête ---------- */
+.tete{
+  background:var(--noir); color:#fff; padding:1rem 0;
+  position:sticky; top:0; z-index:20;
+}
+.tete__in{ display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+.marque{ display:flex; align-items:center; gap:.55rem; font-family:var(--titre); font-weight:800; letter-spacing:-.03em; }
+.marque svg{ width:22px; height:22px; }
+.tete__eti{
+  font-size:.72rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+  background:rgba(159,161,255,.18); color:var(--peri); padding:.22rem .55rem; border-radius:999px;
+}
+.tete__droite{ margin-left:auto; display:flex; align-items:center; gap:.6rem; }
+.lien-clair{ color:var(--peri); font-size:.88rem; font-weight:600; text-decoration:none; }
+.lien-clair:hover{ text-decoration:underline; }
+
+/* ---------- boutons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.45rem;
+  font-family:var(--titre); font-weight:700; font-size:.9rem;
+  padding:.6rem 1rem; border-radius:12px; border:1.5px solid transparent;
+  cursor:pointer; text-decoration:none; white-space:nowrap;
+  transition:background .16s, border-color .16s, transform .12s;
+}
+.btn svg{ width:16px; height:16px; }
+.btn--bleu{ background:var(--bleu); color:#fff; }
+.btn--bleu:hover{ background:#2731E8; }
+.btn--creux{ background:var(--papier); color:var(--noir); border-color:var(--trait); }
+.btn--creux:hover{ border-color:var(--noir); }
+.btn--clair{ background:rgba(255,255,255,.12); color:#fff; }
+.btn--clair:hover{ background:rgba(255,255,255,.2); }
+.btn--petit{ padding:.4rem .7rem; font-size:.82rem; border-radius:10px; }
+.btn:disabled{ opacity:.55; cursor:progress; }
+
+/* ---------- corps ---------- */
+main{ padding:clamp(1.4rem,4vw,2.6rem) 0 4rem; }
+.entete-page{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; gap:1rem;
+  align-items:end; margin-bottom:1.6rem;
+}
+@media (max-width:700px){ .entete-page{ grid-template-columns:1fr; } }
+.entete-page h1{ font-size:clamp(1.7rem,3.6vw,2.4rem); font-weight:800; }
+.entete-page p{ color:var(--gris-txt); margin:.4rem 0 0; font-size:.95rem; }
+
+.barre{ display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+.recherche{
+  flex:1; min-width:12rem; font:inherit; padding:.6rem .9rem;
+  border:1.5px solid var(--trait); border-radius:12px; background:var(--papier);
+}
+.recherche:focus{ outline:none; border-color:var(--bleu); }
+.filtres{ display:flex; gap:.3rem; padding:.25rem; background:var(--papier); border:1.5px solid var(--trait); border-radius:999px; }
+.filtres button{
+  border:0; background:none; cursor:pointer; border-radius:999px;
+  font-family:var(--titre); font-weight:700; font-size:.82rem; padding:.42rem .8rem;
+  color:var(--gris-txt);
+}
+.filtres button[aria-pressed="true"]{ background:var(--noir); color:#fff; }
+
+/* ---------- cartes de dossier ---------- */
+.dossiers{ display:grid; gap:.9rem; grid-template-columns:repeat(auto-fill,minmax(20rem,1fr)); }
+.dossier{
+  background:var(--papier); border:1.5px solid var(--trait); border-radius:18px;
+  padding:1.1rem; display:flex; flex-direction:column; gap:.75rem;
+  text-decoration:none; color:inherit;
+  transition:border-color .16s, box-shadow .16s, transform .16s;
+}
+.dossier:hover{ border-color:var(--bleu); box-shadow:0 16px 32px -22px rgba(20,22,60,.5); transform:translateY(-2px); }
+.dossier__haut{ display:flex; align-items:flex-start; gap:.6rem; }
+.dossier__nom{ flex:1; min-width:0; }
+.dossier__nom b{ font-family:var(--titre); font-weight:800; font-size:1.02rem; display:block; line-height:1.25; }
+.dossier__nom small{ color:var(--gris-nuit); font-size:.8rem; }
+.etiq{
+  font-size:.72rem; font-weight:700; padding:.2rem .5rem; border-radius:999px;
+  background:var(--gris); color:var(--gris-txt); white-space:nowrap;
+}
+.etiq--vert{ background:var(--vert-fond); color:var(--vert); }
+.etiq--ambre{ background:var(--ambre-fond); color:var(--ambre); }
+.etiq--bleu{ background:rgba(49,62,255,.1); color:var(--bleu); }
+
+.jauge{ height:6px; border-radius:999px; background:var(--gris); overflow:hidden; }
+.jauge i{ display:block; height:100%; background:var(--bleu); border-radius:999px; }
+.dossier__chiffres{ display:flex; gap:1rem; flex-wrap:wrap; font-size:.84rem; color:var(--gris-txt); }
+.dossier__chiffres b{ color:var(--noir); font-weight:700; }
+.pastilles{ display:flex; gap:.4rem; flex-wrap:wrap; }
+
+.vide{
+  background:var(--papier); border:1.5px dashed var(--trait); border-radius:18px;
+  padding:2.5rem 1.5rem; text-align:center; color:var(--gris-txt);
+}
+.vide b{ display:block; font-family:var(--titre); color:var(--noir); font-size:1.05rem; margin-bottom:.3rem; }
+
+.attente{ display:flex; align-items:center; gap:.6rem; color:var(--gris-txt); font-weight:600; padding:1.5rem 0; }
+.attente i{
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid rgba(49,62,255,.25); border-top-color:var(--bleu);
+  animation:tourne .7s linear infinite;
+}
+@keyframes tourne{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){ .attente i{ animation-duration:2.4s; } }
+
+/* ---------- panneaux ---------- */
+.voile{ position:fixed; inset:0; z-index:60; background:rgba(10,11,16,.55); display:grid; place-items:center; padding:1rem; }
+.panneau{
+  background:var(--papier); border-radius:22px; width:min(30rem,100%);
+  max-height:90vh; overflow:auto; padding:clamp(1.3rem,3vw,2rem);
+}
+.panneau h2{ font-size:1.3rem; margin-bottom:.3rem; }
+.panneau > p{ color:var(--gris-txt); font-size:.92rem; }
+.champ{ margin-bottom:.85rem; }
+.champ label{ display:block; font-family:var(--titre); font-weight:700; font-size:.84rem; margin-bottom:.3rem; }
+.champ label i{ font-style:normal; font-weight:500; color:var(--gris-nuit); }
+.champ input, .champ select{
+  width:100%; font:inherit; padding:.6rem .8rem; border-radius:11px;
+  border:1.5px solid var(--trait); background:var(--gris); color:var(--noir);
+}
+.champ input:focus, .champ select:focus{ outline:none; border-color:var(--bleu); background:var(--papier); }
+.duo{ display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+@media (max-width:520px){ .duo{ grid-template-columns:1fr; } }
+.actions{ display:flex; gap:.6rem; justify-content:flex-end; margin-top:1.1rem; flex-wrap:wrap; }
+.accuse{ margin:.9rem 0 0; padding:.6rem .8rem; border-radius:11px; background:var(--gris); font-size:.88rem; }
+.accuse--erreur{ background:rgba(180,68,44,.09); color:var(--alerte); }
+
+.refus{ max-width:34rem; margin:4rem auto; text-align:center; }
+.refus h1{ font-size:1.6rem; margin-bottom:.5rem; }
+.refus p{ color:var(--gris-txt); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-cre8" viewBox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M26 18c-5 0-6 3-6 7s-1 7-5 7c4 0 5 3 5 7s1 7 6 7"/><path d="M38 18c5 0 6 3 6 7s1 7 5 7c-4 0-5 3-5 7s-1 7-6 7"/></g></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-lien" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007.5.5l3-3a5 5 0 00-7-7l-1.5 1.5M14 11a5 5 0 00-7.5-.5l-3 3a5 5 0 007 7L12 19"/></symbol>
+  </defs>
+</svg>
+
+<header class="tete">
+  <div class="env tete__in">
+    <span class="marque"><svg aria-hidden="true"><use href="#i-cre8"/></svg> Cre8</span>
+    <span class="tete__eti">Équipe</span>
+    <span class="tete__droite">
+      <span id="quiSuisJe" style="font-size:.86rem; color:var(--peri)"></span>
+      <a class="lien-clair" href="index.html">Site</a>
+      <button type="button" class="btn btn--clair btn--petit" id="sortir">Se déconnecter</button>
+    </span>
+  </div>
+</header>
+
+<main class="env">
+
+  <p class="attente" id="chargement"><i aria-hidden="true"></i> Chargement des dossiers…</p>
+
+  <!-- accès refusé -->
+  <section class="refus" id="refus" hidden>
+    <h1>Réservé à l'équipe</h1>
+    <p id="refusTexte">Cette page liste les dossiers de tous les clients. Votre compte n'y a pas accès.</p>
+    <p><a class="btn btn--bleu" href="espace.html">Aller à mon espace</a></p>
+  </section>
+
+  <!-- tableau de bord -->
+  <div id="bord" hidden>
+    <div class="entete-page">
+      <div>
+        <h1>Dossiers</h1>
+        <p id="resume">—</p>
+      </div>
+      <div style="display:flex; gap:.6rem; flex-wrap:wrap">
+        <button type="button" class="btn btn--creux" id="btnRattacher">
+          <svg aria-hidden="true"><use href="#i-lien"/></svg> Rattacher un client
+        </button>
+        <button type="button" class="btn btn--bleu" id="btnNouveau">
+          <svg aria-hidden="true"><use href="#i-plus"/></svg> Nouveau dossier
+        </button>
+      </div>
+    </div>
+
+    <div class="barre">
+      <input class="recherche" id="recherche" type="search" placeholder="Rechercher une entreprise, une référence…" aria-label="Rechercher un dossier">
+      <div class="filtres" role="group" aria-label="Filtrer par statut">
+        <button type="button" data-f="actif"   aria-pressed="true">En cours</button>
+        <button type="button" data-f="livre"   aria-pressed="false">Livrés</button>
+        <button type="button" data-f="tous"    aria-pressed="false">Tous</button>
+      </div>
+    </div>
+
+    <div class="dossiers" id="dossiers"></div>
+    <div class="vide" id="videDossiers" hidden>
+      <b>Aucun dossier ici</b>
+      <span id="videTexte">Changez de filtre, ou créez un dossier.</span>
+    </div>
+  </div>
+</main>
+
+<!-- ---------- panneau : nouveau dossier ---------- -->
+<div class="voile" id="voileNouveau" hidden>
+  <form class="panneau" id="formNouveau" novalidate>
+    <h2>Nouveau dossier</h2>
+    <p>La référence et le code d'accès sont proposés automatiquement ; vous pouvez les changer.</p>
+    <div class="champ">
+      <label for="nEntreprise">Entreprise <i>ou nom du client</i></label>
+      <input id="nEntreprise" required autocomplete="off">
+    </div>
+    <div class="champ">
+      <label for="nTitre">Intitulé du projet <i>(facultatif)</i></label>
+      <input id="nTitre" autocomplete="off" placeholder="Site sur-mesure · 3 pages">
+    </div>
+    <div class="duo">
+      <div class="champ">
+        <label for="nReference">Référence</label>
+        <input id="nReference" required autocomplete="off">
+      </div>
+      <div class="champ">
+        <label for="nCode">Code d'accès <i>(facultatif)</i></label>
+        <input id="nCode" inputmode="numeric" autocomplete="off">
+      </div>
+    </div>
+    <div class="duo">
+      <div class="champ">
+        <label for="nDevis">Devis de base (€)</label>
+        <input id="nDevis" type="number" min="0" step="10" value="0">
+      </div>
+      <div class="champ">
+        <label for="nCycle">Cycle (jours)</label>
+        <input id="nCycle" type="number" min="1" step="1" value="14">
+      </div>
+    </div>
+    <div class="duo">
+      <div class="champ">
+        <label for="nCommande">Date de commande</label>
+        <input id="nCommande" type="date">
+      </div>
+      <div class="champ">
+        <label for="nLivraison">Livraison prévue <i>(facultatif)</i></label>
+        <input id="nLivraison" type="date">
+      </div>
+    </div>
+    <p class="accuse" id="accuseNouveau" role="status" hidden></p>
+    <div class="actions">
+      <button type="button" class="btn btn--creux" data-fermer="voileNouveau">Annuler</button>
+      <button type="submit" class="btn btn--bleu">Créer le dossier</button>
+    </div>
+  </form>
+</div>
+
+<!-- ---------- panneau : rattacher un client ---------- -->
+<div class="voile" id="voileRattacher" hidden>
+  <form class="panneau" id="formRattacher" novalidate>
+    <h2>Rattacher un client</h2>
+    <p>Le client doit déjà avoir créé son compte sur le site. Son e-mail suffit à le relier au dossier.</p>
+    <div class="champ">
+      <label for="rProjet">Dossier</label>
+      <select id="rProjet" required></select>
+    </div>
+    <div class="champ">
+      <label for="rEmail">E-mail du client</label>
+      <input id="rEmail" type="email" required autocomplete="off" placeholder="camille@monentreprise.be">
+    </div>
+    <p class="accuse" id="accuseRattacher" role="status" hidden></p>
+    <div class="actions">
+      <button type="button" class="btn btn--creux" data-fermer="voileRattacher">Annuler</button>
+      <button type="submit" class="btn btn--bleu">Rattacher</button>
+    </div>
+  </form>
+</div>
+
+<script src="vendor/supabase-js.js"></script>
+<script src="cre8-supabase.js"></script>
+<script>
+(function () {
+'use strict';
+var $ = function (s) { return document.querySelector(s); };
+var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+
+/* Les entreprises et intitulés sont saisis par l'équipe, mais ils transitent
+   par la base : on les échappe avant de les réinjecter en HTML. */
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function euro(n) { return (Number(n) || 0).toLocaleString('fr-BE', { maximumFractionDigits: 0 }) + ' €'; }
+function jour(s) {
+  if (!s) return null;
+  var d = new Date(s);
+  return isNaN(d) ? null : d.toLocaleDateString('fr-BE', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+var PHASES = {
+  cadrage: 'Cadrage', maquette: 'Maquette', developpement: 'Développement',
+  integration: 'Intégration', relecture: 'Relecture', livraison: 'Mise en ligne',
+  termine: 'Livré', pause: 'En pause'
+};
+
+var TOUT = [];      // [{projet, nonLus, offres, membres, panier}]
+var filtre = 'actif';
+
+/* ---------------- rendu ---------------- */
+function visibles() {
+  var q = ($('#recherche').value || '').trim().toLowerCase();
+  return TOUT.filter(function (d) {
+    var p = d.projet;
+    if (filtre === 'actif' && p.statut !== 'actif' && p.statut !== 'pause') return false;
+    if (filtre === 'livre' && p.statut !== 'livre' && p.phase !== 'termine') return false;
+    if (!q) return true;
+    return (p.entreprise + ' ' + p.reference + ' ' + (p.titre || '')).toLowerCase().indexOf(q) > -1;
+  });
+}
+
+function carte(d) {
+  var p = d.projet;
+  var total = (Number(p.devis_base) || 0);
+  var pastilles = '';
+  if (d.nonLus) pastilles += '<span class="etiq etiq--bleu">' + d.nonLus + ' message' + (d.nonLus > 1 ? 's' : '') + ' à lire</span>';
+  if (d.offres) pastilles += '<span class="etiq etiq--ambre">' + d.offres + ' offre' + (d.offres > 1 ? 's' : '') + ' en attente</span>';
+  if (d.panier) pastilles += '<span class="etiq etiq--ambre">panier ' + euro(d.panier) + '</span>';
+  /* l'alerte n'a de sens que sur un dossier encore en cours : sur un dossier
+     livré, il n'y a plus rien à faire de cette information */
+  var fini = p.statut === 'livre' || p.statut === 'archive' || p.phase === 'termine';
+  if (!d.membres && !fini) pastilles += '<span class="etiq etiq--ambre">aucun client rattaché</span>';
+
+  var etat = p.statut === 'pause' ? '<span class="etiq etiq--ambre">En pause</span>'
+           : p.statut === 'livre' || p.phase === 'termine' ? '<span class="etiq etiq--vert">Livré</span>'
+           : '<span class="etiq">' + esc(PHASES[p.phase] || p.phase) + '</span>';
+
+  var dates = [];
+  if (jour(p.date_commande))  dates.push('commandé le ' + jour(p.date_commande));
+  dates.push(jour(p.date_livraison) ? 'livraison le ' + jour(p.date_livraison) : 'livraison à définir');
+
+  return '<a class="dossier" href="espace.html?projet=' + encodeURIComponent(p.id) + '">' +
+    '<span class="dossier__haut">' +
+      '<span class="dossier__nom"><b>' + esc(p.entreprise) + '</b>' +
+      '<small>' + esc(p.reference) + (p.titre ? ' · ' + esc(p.titre) : '') + '</small></span>' +
+      etat +
+    '</span>' +
+    '<span class="jauge"><i style="width:' + Math.max(2, Math.min(100, p.avancement || 0)) + '%"></i></span>' +
+    '<span class="dossier__chiffres">' +
+      '<span><b>' + (p.avancement || 0) + ' %</b> d\'avancement</span>' +
+      '<span><b>' + (total ? euro(total) : 'à établir') + '</b></span>' +
+      '<span><b>' + d.membres + '</b> client' + (d.membres > 1 ? 's' : '') + '</span>' +
+    '</span>' +
+    '<span class="dossier__chiffres" style="font-size:.79rem">' + esc(dates.join(' · ')) + '</span>' +
+    (pastilles ? '<span class="pastilles">' + pastilles + '</span>' : '') +
+  '</a>';
+}
+
+function rendre() {
+  var liste = visibles();
+  $('#dossiers').innerHTML = liste.map(carte).join('');
+  $('#videDossiers').hidden = liste.length > 0;
+  $('#videTexte').textContent = TOUT.length
+    ? 'Aucun dossier ne correspond. Changez de filtre ou effacez la recherche.'
+    : 'Créez votre premier dossier avec le bouton ci-dessus.';
+
+  var actifs = TOUT.filter(function (d) { return d.projet.statut === 'actif'; }).length;
+  var lire = TOUT.reduce(function (t, d) { return t + d.nonLus; }, 0);
+  $('#resume').textContent =
+    TOUT.length + ' dossier' + (TOUT.length > 1 ? 's' : '') +
+    ' · ' + actifs + ' en cours' +
+    (lire ? ' · ' + lire + ' message' + (lire > 1 ? 's' : '') + ' à lire' : '');
+}
+
+/* ---------------- panneaux ---------------- */
+function ouvrir(id) { $('#' + id).hidden = false; document.body.style.overflow = 'hidden'; }
+function fermer(id) { $('#' + id).hidden = true; document.body.style.overflow = ''; }
+$$('[data-fermer]').forEach(function (b) {
+  b.addEventListener('click', function () { fermer(b.dataset.fermer); });
+});
+$$('.voile').forEach(function (v) {
+  v.addEventListener('click', function (e) { if (e.target === v) fermer(v.id); });
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') $$('.voile').forEach(function (v) { if (!v.hidden) fermer(v.id); });
+});
+
+function dire(sel, txt, erreur) {
+  var el = $(sel);
+  el.hidden = !txt;
+  el.textContent = txt || '';
+  el.classList.toggle('accuse--erreur', !!erreur);
+}
+
+/* ---------------- nouveau dossier ---------------- */
+/* La référence est unique en base : on part du plus grand numéro déjà pris,
+   pas du nombre de dossiers — un dossier supprimé ou renommé ferait sinon
+   reproposer une référence existante, et l'insertion serait refusée. */
+function referenceProposee() {
+  var an = new Date().getFullYear();
+  var prefixe = 'CRE8-' + an + '-';
+  var max = 0;
+  TOUT.forEach(function (d) {
+    var r = d.projet.reference || '';
+    if (r.indexOf(prefixe) !== 0) return;
+    var n = parseInt(r.slice(prefixe.length), 10);
+    if (!isNaN(n) && n > max) max = n;
+  });
+  return prefixe + String(max + 1).padStart(4, '0');
+}
+function codePropose() {
+  var c;
+  do { c = String(Math.floor(100000 + Math.random() * 900000)); }
+  while (TOUT.some(function (d) { return d.projet.code_acces === c; }));
+  return c;
+}
+
+$('#btnNouveau').addEventListener('click', function () {
+  $('#nReference').value = referenceProposee();
+  $('#nCode').value = codePropose();
+  $('#nCommande').value = new Date().toISOString().slice(0, 10);
+  dire('#accuseNouveau', '');
+  ouvrir('voileNouveau');
+  $('#nEntreprise').focus();
+});
+
+$('#formNouveau').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var entreprise = $('#nEntreprise').value.trim();
+  var reference = $('#nReference').value.trim();
+  if (!entreprise || !reference) {
+    dire('#accuseNouveau', 'L’entreprise et la référence sont nécessaires.', true);
+    return;
+  }
+  var b = this.querySelector('button[type=submit]');
+  b.disabled = true;
+  dire('#accuseNouveau', 'Création…');
+  CRE8.creerProjet({
+    entreprise: entreprise,
+    reference: reference,
+    titre: $('#nTitre').value.trim(),
+    code: $('#nCode').value.trim() || null,
+    devis: Number($('#nDevis').value) || 0,
+    cycle: Number($('#nCycle').value) || 14,
+    dateCommande: $('#nCommande').value || null,
+    dateLivraison: $('#nLivraison').value || null
+  }).then(function () {
+    fermer('voileNouveau');
+    $('#formNouveau').reset();
+    return charger();
+  }).catch(function (err) {
+    var m = CRE8.messageErreur(err);
+    if (/duplicate key|cre8_projets_reference_key/i.test(m)) m = 'Cette référence est déjà utilisée par un autre dossier.';
+    else if (/cre8_projets_code_acces_key/i.test(m)) m = 'Ce code d\u2019accès est déjà utilisé par un autre dossier.';
+    dire('#accuseNouveau', m, true);
+  }).then(function () { b.disabled = false; });
+});
+
+/* ---------------- rattacher un client ---------------- */
+$('#btnRattacher').addEventListener('click', function () {
+  $('#rProjet').innerHTML = TOUT.map(function (d) {
+    return '<option value="' + esc(d.projet.id) + '">' + esc(d.projet.entreprise) +
+           ' — ' + esc(d.projet.reference) + '</option>';
+  }).join('');
+  dire('#accuseRattacher', '');
+  ouvrir('voileRattacher');
+  $('#rEmail').focus();
+});
+
+$('#formRattacher').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var projet = $('#rProjet').value;
+  var email = $('#rEmail').value.trim();
+  if (!projet || !email) { dire('#accuseRattacher', 'Choisissez un dossier et saisissez un e-mail.', true); return; }
+
+  var b = this.querySelector('button[type=submit]');
+  b.disabled = true;
+  dire('#accuseRattacher', 'Recherche du compte…');
+  CRE8.chercherCompte(email).then(function (c) {
+    if (!c) {
+      throw new Error('Aucun compte avec cet e-mail. Le client doit d’abord le créer sur la page de connexion.');
+    }
+    return CRE8.rattacherCompte(projet, c.id).then(function () { return c; });
+  }).then(function (c) {
+    dire('#accuseRattacher', (c.nom || c.email) + ' est rattaché au dossier.');
+    $('#rEmail').value = '';
+    return charger();
+  }).catch(function (err) {
+    var m = CRE8.messageErreur(err);
+    if (/duplicate key/i.test(m)) m = 'Ce client est déjà rattaché à ce dossier.';
+    dire('#accuseRattacher', m, true);
+  }).then(function () { b.disabled = false; });
+});
+
+/* ---------------- filtres ---------------- */
+$$('.filtres button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    filtre = b.dataset.f;
+    $$('.filtres button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    rendre();
+  });
+});
+$('#recherche').addEventListener('input', rendre);
+
+$('#sortir').addEventListener('click', function () {
+  CRE8.deconnexion().then(function () { location.href = 'connexion.html'; });
+});
+
+/* ---------------- démarrage ---------------- */
+function charger() {
+  return CRE8.listerProjets().then(function (l) { TOUT = l; rendre(); });
+}
+
+(function demarrer() {
+  if (!window.CRE8 || CRE8.absent) {
+    $('#chargement').hidden = true;
+    $('#refus').hidden = false;
+    $('#refusTexte').textContent = CRE8.messageErreur();
+    return;
+  }
+  CRE8.profil().then(function (p) {
+    if (!p) { location.replace('connexion.html'); return null; }
+    $('#quiSuisJe').textContent = p.nom || p.email;
+    return CRE8.estEquipe().then(function (ok) {
+      $('#chargement').hidden = true;
+      if (!ok) { $('#refus').hidden = false; return null; }
+      $('#bord').hidden = false;
+      return charger();
+    });
+  }).catch(function (err) {
+    $('#chargement').hidden = true;
+    $('#refus').hidden = false;
+    $('#refusTexte').textContent = CRE8.messageErreur(err);
+  });
+})();
+})();
+</script>
+</body>
+</html>

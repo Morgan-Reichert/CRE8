@@ -1818,14 +1818,32 @@ function appliquer(D) {
     'Les prix sont ceux du catalogue, sans majoration en cours de projet. '
     + 'Vous validez la demande ici, l’équipe vous envoie le lien de règlement par e-mail.';
 
-  appliquerRole(D.compte.role === 'equipe' || D.compte.role === 'admin' ? 'equipe' : 'client');
+  var equipe = D.compte.role === 'equipe' || D.compte.role === 'admin';
+  appliquerRole(equipe ? 'equipe' : 'client');
   $('#btnRole').hidden = true;
+
+  /* Pour l'équipe, la flèche de retour ramène à la liste des dossiers plutôt
+     qu'au site : c'est de là qu'elle vient. */
+  if (equipe) {
+    var retour = document.querySelector('.entete__retour');
+    if (retour) {
+      retour.href = 'staff.html';
+      retour.setAttribute('aria-label', 'Retour à tous les dossiers');
+      retour.title = 'Tous les dossiers';
+    }
+  }
 
   rendreTout();
 }
 
+/* Le dossier ouvert est celui de l'URL quand il y en a un : l'équipe passe
+   de l'un à l'autre depuis staff.html, et un rechargement ne doit pas la
+   ramener au dossier le plus récent. */
+function dossierVoulu() {
+  return (location.search.match(/[?&]projet=([0-9a-f-]{36})/i) || [])[1] || null;
+}
 function recharger() {
-  return CRE8.chargerEspace().then(function (D) {
+  return CRE8.chargerEspace(dossierVoulu()).then(function (D) {
     if (D && D.projet) appliquer(D);
     return D;
   });
@@ -1879,6 +1897,7 @@ function modeDemo() {
 
 (function demarrer() {
   var demande = /(^|[?&])demo=1(&|$)/.test(location.search);
+  var voulu = (location.search.match(/[?&]projet=([0-9a-f-]{36})/i) || [])[1] || null;
 
   if (demande || !window.CRE8 || CRE8.absent) {
     if (!demande && window.CRE8 && CRE8.absent) {
@@ -1892,7 +1911,7 @@ function modeDemo() {
 
   $$('.vue').forEach(function (v) { v.hidden = true; });
 
-  CRE8.chargerEspace().then(function (D) {
+  CRE8.chargerEspace(voulu).then(function (D) {
     $('#chargement').hidden = true;
 
     if (!D) { location.replace('connexion.html'); return; }

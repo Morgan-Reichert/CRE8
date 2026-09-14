@@ -199,15 +199,17 @@ function compteCourant(s) {
     });
 }
 
-function chargerEspace() {
+/* `projetId` ouvre un dossier précis — l'équipe en voit plusieurs, et
+   staff.html l'utilise pour passer de l'un à l'autre. Sans lui, on prend le
+   dossier actif le plus récemment remué, ce qui suffit à un client. */
+function chargerEspace(projetId) {
   return session().then(function (s) {
     if (!s) return null;
     return compteCourant(s).then(function (compte) {
-      return sb.from('cre8_projets')
-        .select('*')
-        .eq('statut', 'actif')
-        .order('maj_le', { ascending: false })
-        .limit(1)
+      var q = sb.from('cre8_projets').select('*');
+      if (projetId) q = q.eq('id', projetId);
+      else q = q.eq('statut', 'actif').order('maj_le', { ascending: false }).limit(1);
+      return q
         .then(verifier)
         .then(function (projets) {
           var projet = (projets || [])[0] || null;
@@ -238,6 +240,94 @@ function chargerEspace() {
         });
     });
   });
+}
+
+/* ---------------------------------------------------------------------------
+   Côté équipe : la vue d'ensemble des dossiers.
+   La RLS fait le tri — un client qui appellerait ces fonctions ne verrait que
+   ses propres projets, et les écritures lui seraient refusées.
+   --------------------------------------------------------------------------- */
+function estEquipe() {
+  return session().then(function (s) {
+    if (!s) return false;
+    return compteCourant(s).then(function (c) {
+      return c.role === 'equipe' || c.role === 'admin';
+    });
+  });
+}
+
+function listerProjets() {
+  return Promise.all([
+    sb.from('cre8_projets').select('*').order('maj_le', { ascending: false }),
+    sb.from('cre8_messages').select('projet_id,lu_le,role'),
+    sb.from('cre8_offres').select('projet_id,etat'),
+    sb.from('cre8_projet_options').select('projet_id,prix,statut'),
+    sb.from('cre8_membres').select('projet_id,compte_id')
+  ]).then(function (t) {
+    var projets = verifier(t[0]) || [];
+    var msg = verifier(t[1]) || [], off = verifier(t[2]) || [];
+    var opt = verifier(t[3]) || [], mem = verifier(t[4]) || [];
+
+    function compter(liste, test) {
+      var n = {};
+      liste.forEach(function (r) {
+        if (test && !test(r)) return;
+        n[r.projet_id] = (n[r.projet_id] || 0) + 1;
+      });
+      return n;
+    }
+    var nonLus  = compter(msg, function (m) { return !m.lu_le && m.role === 'client'; });
+    var ouvert  = compter(off, function (o) { return o.etat === 'ouverte'; });
+    var membres = compter(mem);
+
+    var panier = {};
+    opt.forEach(function (o) {
+      if (o.statut !== 'panier') return;
+      panier[o.projet_id] = (panier[o.projet_id] || 0) + (Number(o.prix) || 0);
+    });
+
+    return projets.map(function (p) {
+      return {
+        projet: p,
+        nonLus:  nonLus[p.id]  || 0,
+        offres:  ouvert[p.id]  || 0,
+        membres: membres[p.id] || 0,
+        panier:  panier[p.id]  || 0
+      };
+    });
+  });
+}
+
+function creerProjet(p) {
+  return sb.from('cre8_projets').insert({
+    reference:     p.reference,
+    entreprise:    p.entreprise,
+    titre:         p.titre || '',
+    formule:       p.formule || 'sur-mesure',
+    phase:         p.phase || 'cadrage',
+    cycle:         p.cycle || 14,
+    devis_base:    p.devis || 0,
+    date_commande: p.dateCommande || null,
+    date_livraison:p.dateLivraison || null,
+    code_acces:    p.code || null,
+    statut:        'actif'
+  }).select().then(verifier).then(function (r) { return (r && r[0]) || null; });
+}
+
+/* Retrouve une fiche par e-mail. Seule l'équipe lit les comptes des autres :
+   pour un client, la requête revient simplement vide. */
+function chercherCompte(email) {
+  return sb.from('cre8_comptes')
+    .select('id,email,nom,role')
+    .eq('email', String(email || '').trim().toLowerCase())
+    .maybeSingle()
+    .then(function (r) { return r.data || null; });
+}
+
+function rattacherCompte(projetId, compteId) {
+  return sb.from('cre8_membres')
+    .insert({ projet_id: projetId, compte_id: compteId, role: 'client' })
+    .select().then(verifier).then(function (r) { return (r && r[0]) || null; });
 }
 
 /* ---------------------------------------------------------------------------
@@ -342,6 +432,11 @@ w.CRE8 = {
   memoriser: memoriser,
   rejoindreProjet: rejoindreProjet,
   chargerEspace: chargerEspace,
+  estEquipe: estEquipe,
+  listerProjets: listerProjets,
+  creerProjet: creerProjet,
+  chercherCompte: chercherCompte,
+  rattacherCompte: rattacherCompte,
   ajouterAuPanier: ajouterAuPanier,
   retirerDuPanier: retirerDuPanier,
   repondreOffre: repondreOffre,
