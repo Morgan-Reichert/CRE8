@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Pages de tunnel : inutiles en recherche, et elles diluent les pages d'offre.
+Disallow: /panier.html
+Disallow: /configurateur.html
+
+Sitemap: https://cre8.qlicklab.eu/sitemap.xml
